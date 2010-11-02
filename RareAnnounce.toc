@@ -1,0 +1,9 @@
+## Interface: 40000
+## Title: RareAnnounce
+## Version: 4.0.1.1
+## Author: Sadiniel
+## Notes: Tells others what loot your Rares or Bosses drop.
+## SavedVariablesPerCharacter: RareAnnounceConfig
+
+RareAnnounce.lua
+RareAnnounce.xml
