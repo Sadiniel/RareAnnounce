@@ -241,11 +241,13 @@ function RareAnnounce_Cancel()
 	local bossvalue = RareAnnounceConfig.ANNOUNCE_BOSS_CHANNEL
 	
 	AnnounceRareCheck:SetChecked(RareAnnounceConfig.ANNOUNCE_RARE);
+	RareMenu:SetValue(rarevalue);
 	RareMenu:RefreshValue();
 	
 	AnnounceBossCheck:SetChecked(RareAnnounceConfig.ANNOUNCE_BOSS);
 	AnnounceBossLeaderCheck:SetChecked(RareAnnounceConfig.ANNOUNCE_BOSS_IF_LEADER);
 	AnnounceBossLooterCheck:SetChecked(RareAnnounceConfig.ANNOUNCE_BOSS_IF_LOOTER);
+	BossMenu:SetValue(bossvalue);
 	BossMenu:RefreshValue();
 	
 end
