@@ -1,9 +1,9 @@
 -- RareAnnounce
--- By Sadiniel <Dispel Stupid> of Garona
+-- By Sadiniel <Dispel Stupid> of Garona-US
 
 local RAversion = GetAddOnMetadata("RareAnnounce", "Version");
 local RareAnnounce = CreateFrame("Frame", "RareAnnounce");
-	
+
 function RareAnnounce_Config()
 
 	-- This is all to set up the options window.
@@ -160,6 +160,20 @@ function RareMenu_Initialize(self)
 	info.tooltipText = "Announce to the /Yell chat channel";
 	UIDropDownMenu_AddButton(info);
 	
+	local n = #channelList;
+	for i=1 , n , 2 do
+		info.text = "#" .. channelList[i] .. ". " .. channelList[i+1];
+		info.func = RareMenu_OnClick;
+		info.value = channelList[i];
+		if ( info.value == selectedValue ) then
+			info.checked = 1;
+		else
+			info.checked = nil;
+		end
+		info.tooltipTitle = "Channel";
+		info.tooltipText = "Announce to the " .. channelList[i+1] .. " chat channel";
+		UIDropDownMenu_AddButton(info);
+	end
 end
 
 function BossMenu_Initialize(self)
@@ -214,7 +228,21 @@ function BossMenu_Initialize(self)
 	info.tooltipTitle = "Yell";
 	info.tooltipText = "Announce to the /Yell chat channel";
 	UIDropDownMenu_AddButton(info);
-		
+	
+	local n = #channelList;
+	for i=1 , n , 2 do
+		info.text = "#" .. channelList[i] .. ". " .. channelList[i+1];
+		info.func = BossMenu_OnClick;
+		info.value = channelList[i];
+		if ( info.value == selectedValue ) then
+			info.checked = 1;
+		else
+			info.checked = nil;
+		end
+		info.tooltipTitle = "Channel";
+		info.tooltipText = "Announce to the " .. channelList[i+1] .. " chat channel";
+		UIDropDownMenu_AddButton(info);
+	end
 end
 
 function RareAnnounce_Okay()
@@ -237,20 +265,81 @@ function RareAnnounce_Cancel()
 	-- When you click that little "Cancel" button in the options window
 	-- the game replaces the information in the window with your Saved Variables
 	
-	local rarevalue = RareAnnounceConfig.ANNOUNCE_RARE_CHANNEL
-	local bossvalue = RareAnnounceConfig.ANNOUNCE_BOSS_CHANNEL
+	-- local rarevalue = RareAnnounceConfig.ANNOUNCE_RARE_CHANNEL
+	-- local bossvalue = RareAnnounceConfig.ANNOUNCE_BOSS_CHANNEL
 	
 	AnnounceRareCheck:SetChecked(RareAnnounceConfig.ANNOUNCE_RARE);
-	RareMenu:SetValue(rarevalue);
+	RareMenu:SetValue(RareAnnounceConfig.ANNOUNCE_RARE_CHANNEL);
 	RareMenu:RefreshValue();
+	
 	
 	AnnounceBossCheck:SetChecked(RareAnnounceConfig.ANNOUNCE_BOSS);
 	AnnounceBossLeaderCheck:SetChecked(RareAnnounceConfig.ANNOUNCE_BOSS_IF_LEADER);
 	AnnounceBossLooterCheck:SetChecked(RareAnnounceConfig.ANNOUNCE_BOSS_IF_LOOTER);
-	BossMenu:SetValue(bossvalue);
+	BossMenu:SetValue(RareAnnounceConfig.ANNOUNCE_BOSS_CHANNEL);
 	BossMenu:RefreshValue();
 	
 end
+
+function ChannelTable()
+
+	local id1, name1, id2, name2, id3, name3, id4, name4, id5, name5, id6, name6, id7, name7, id8, name8, id9, name9 = GetChannelList();
+
+	if not ((id1 == nil) or (name1 == "General") or (name1 == "Trade") or (name1 == "LookingForGroup")) then
+		ChatFrame1:AddMessage( "Channel Number " .. id1 .. " Name: " .. name1, .9, 0, .9 );
+		tinsert(channelList, id1);
+		tinsert(channelList, name1);
+	end
+
+	if not ((id2 == nil) or (name2 == "General") or (name2 == "Trade") or (name2 == "LookingForGroup")) then
+		ChatFrame1:AddMessage( "Channel Number " .. id2 .. " Name: " .. name2, .9, 0, .9 );
+		tinsert(channelList, id2);
+		tinsert(channelList, name2);
+	end
+	
+	if not ((id3 == nil) or (name3 == "General") or (name3 == "Trade") or (name3 == "LookingForGroup")) then
+		ChatFrame1:AddMessage( "Channel Number " .. id3 .. " Name: " .. name3, .9, 0, .9 );	
+		tinsert(channelList, id3);
+		tinsert(channelList, name3); 
+	end
+	
+	if not ((id4 == nil) or (name4 == "General") or (name4 == "Trade") or (name4 == "LookingForGroup")) then 
+		ChatFrame1:AddMessage( "Channel Number " .. id4 .. " Name: " .. name4, .9, 0, .9 );
+		tinsert(channelList, id4);
+		tinsert(channelList, name4); 
+	end
+	
+	if not ((id5 == nil) or (name5 == "General") or (name5 == "Trade") or (name5 == "LookingForGroup")) then 
+		ChatFrame1:AddMessage( "Channel Number " .. id5 .. " Name: " .. name5, .9, 0, .9 );
+		tinsert(channelList, id5);
+		tinsert(channelList, name5); 
+	end
+	
+	if not ((id6 == nil) or (name6 == "General") or (name6 == "Trade") or (name6 == "LookingForGroup")) then 
+		ChatFrame1:AddMessage( "Channel Number " .. id6 .. " Name: " .. name6, .9, 0, .9 );
+		tinsert(channelList, id6);
+		tinsert(channelList, name6); 
+	end
+	
+	if not ((id7 == nil) or (name7 == "General") or (name7 == "Trade") or (name7 == "LookingForGroup")) then
+		ChatFrame1:AddMessage( "Channel Number " .. id7 .. " Name: " .. name7, .9, 0, .9 );	
+		tinsert(channelList, id7);
+		tinsert(channelList, name7); 
+	end
+	
+	if not ((id8 == nil) or (name8 == "General") or (name8 == "Trade") or (name8 == "LookingForGroup")) then 
+		ChatFrame1:AddMessage( "Channel Number " .. id8 .. " Name: " .. name8, .9, 0, .9 );
+		tinsert(channelList, id8);
+		tinsert(channelList, name8); 
+	end
+	
+	if not ((id9 == nil) or (name9 == "General") or (name9 == "Trade") or (name9 == "LookingForGroup")) then 
+		ChatFrame1:AddMessage( "Channel Number " .. id9 .. " Name: " .. name9, .9, 0, .9 );
+		tinsert(channelList, id9);
+		tinsert(channelList, name9); 
+	end
+end
+	
 
 function RareAnnounce_OnLoad(self)
 
@@ -270,6 +359,9 @@ function RareAnnounce_OnLoad(self)
 	
 	if	RareAnnounceConfig.ANNOUNCE_RARE_CHANNEL == nil then RareAnnounceConfig.ANNOUNCE_RARE_CHANNEL = "guild"; end
 	if	RareAnnounceConfig.ANNOUNCE_BOSS_CHANNEL == nil then RareAnnounceConfig.ANNOUNCE_BOSS_CHANNEL = "group"; end
+	
+	channelList = {};
+	ChannelTable();
 	
 	-- Setting up the otions window
 
@@ -347,7 +439,11 @@ function RareAnnounce_OnEvent(self, event, ...)
 							ChatFrame1:AddMessage( tarclass .. ": " .. tarname .. " Dropped: " .. itemlink, .9, 0, .9 );
 							--]]
 							
-							SendChatMessage( tarclass .. ": " .. tarname .. " Dropped: " .. itemlink  , RareAnnounceConfig.ANNOUNCE_RARE_CHANNEL , nil , nil );
+							if (RareAnnounceConfig.ANNOUNCE_RARE_CHANNEL > 0) and (RareAnnounceConfig.ANNOUNCE_RARE_CHANNEL < 100) then
+								SendChatMessage( tarclass .. ": " .. tarname .. " Dropped: " .. itemlink  , "channel" , nil , RareAnnounceConfig.ANNOUNCE_RARE_CHANNEL );
+							else
+								SendChatMessage( tarclass .. ": " .. tarname .. " Dropped: " .. itemlink  , RareAnnounceConfig.ANNOUNCE_RARE_CHANNEL , nil , nil );
+							end
 						end
 					end
 				end
@@ -361,124 +457,98 @@ function RareAnnounce_OnEvent(self, event, ...)
 			local lootmethod, masterlooterPartyID, masterlooterRaidID = GetLootMethod();
 			
 			-- First thing to do is see if the player is looting a world boss or inside an instance.
-			-- Also, we check here to see if the group is using Master Looter, since displaying the loot
-			-- won't matter if everyone has roll boxes anyway.
+			-- Also, we check here to see if the group is using Master Looter or we are announcing elsewhere
+			-- since displaying the loot to the group won't matter if everyone has roll boxes anyway.
 			
-			if	( ( ( targetclass == "worldboss" ) or ( inInstance ) ) and ( lootmethod == "master" ) ) then
-				
-				--[[ debug
-				ChatFrame1:AddMessage( "-- Boss Checked", .9, 0, .9 );
-				-- ]]
-				
-				-- This is a cenfusing section.
-				-- In short, if you did not choose one of the special boss options,
-				-- or if you did and meet the requirements we announce the loot to chat.
-				
-				local announcepermission = false;
-				if	( ( RareAnnounceConfig.ANNOUNCE_BOSS_IF_LEADER == nil ) and ( RareAnnounceConfig.ANNOUNCE_BOSS_IF_LOOTER == nil ) ) then
+			local tempchannel = RareAnnounceConfig.ANNOUNCE_BOSS_CHANNEL;
+			local announcepermission = false;
+			if	( ( targetclass == "worldboss" ) or ( inInstance ) ) then
+				if not ( ( tempchannel == "group" ) or ( tempchannel == "say" ) or ( tempchannel == "yell" ) ) then
 					announcepermission = true;
-					
-					--[[ debug
-					ChatFrame1:AddMessage( "-- Leader & Looter not Checked", .9, 0, .9 );
-					ChatFrame1:AddMessage( "-- Permission Granted", .9, 0, .9 );
-					--]]
-					
-				elseif	( ( IsPartyLeader() or IsRaidLeader() ) and ( RareAnnounceConfig.ANNOUNCE_BOSS_IF_LEADER ) ) then
-					announcepermission = true;
-					
-					--[[ debug
-					ChatFrame1:AddMessage( "-- Group Leader & Leader Checked", .9, 0, .9 );
-					ChatFrame1:AddMessage( "-- Permission Granted", .9, 0, .9 );
-					--]]
-					
-				elseif	( lootmethod == "master" ) then
-					if	( ( masterlooterPartyID == 0 ) or ( masterlooterRaidID == UnitInRaid("player") ) and ( RareAnnounceConfig.ANNOUNCE_BOSS_IF_LOOTER ) ) then
+				elseif ( ( lootmethod == "master" ) or (lootmethod == "freeforall" ) ) then
+				
+					-- This is a cenfusing section.
+					-- If we're dealing with a boss and using Master Looter
+					-- and you did not choose one of the special boss options,
+					-- or if you did and meet the requirements we announce the loot to chat.
+				
+					if	( ( RareAnnounceConfig.ANNOUNCE_BOSS_IF_LEADER == nil ) and ( RareAnnounceConfig.ANNOUNCE_BOSS_IF_LOOTER == nil ) ) then
 						announcepermission = true;
-						
-						--[[ debug
-						ChatFrame1:AddMessage( "-- Master Looter & Looter Checked", .9, 0, .9 );
-						ChatFrame1:AddMessage( "-- Permission Granted", .9, 0, .9 );
-						--]]
-						
-					end
-				elseif	( UnitLevel("player") > 59 ) then
-					if	( UnitLevel("target") > ( UnitLevel("player") - 5 ) ) then
-						if	not ( targetclass == "worldboss" ) then
-							announcepermission = true;
-						
-							--[[ debug
-							ChatFrame1:AddMessage( "-- Level 60+ Non-Trivial instance Trash drop", .9, 0, .9 );
-							ChatFrame1:AddMessage( "-- Permission Granted", .9, 0, .9 );
-							--]]
-							
+					elseif	( ( IsPartyLeader() or IsRaidLeader() ) and ( RareAnnounceConfig.ANNOUNCE_BOSS_IF_LEADER ) ) then
+						announcepermission = true;
+					elseif	( ( masterlooterPartyID == 0 ) or ( masterlooterRaidID == UnitInRaid("player") ) and ( RareAnnounceConfig.ANNOUNCE_BOSS_IF_LOOTER ) ) then
+						announcepermission = true;
+					elseif	( UnitLevel("player") > 59 ) then
+						if	( UnitLevel("target") > ( UnitLevel("player") - 5 ) ) then
+							if	not ( targetclass == "worldboss" ) then
+								announcepermission = true;
+							end
 						end
 					end
-				else
-					--[[ debug
-					ChatFrame1:AddMessage( "-- Permission Denied", .9, 0, .9 );
-					--]]
+				end
+			end
+				
+			if	(announcepermission) then	
+			
+				-- Now that we're inside we need to see if there's anything worth announcing
+				
+				local tarname = UnitName("target");
+				local numitems = GetNumLootItems();
+				
+				-- Instances sometimes have Chests, so we need to catch that error before it happens
+					
+				if ( tarclass == nil ) then
+					tarclass = "Chest";
+				end
+				if ( tarname == nil ) then
+					tarname = "Chest";
 				end
 				
-				if	(announcepermission) then	
+				if ( not ( lasttarname == tarname ) ) then
 				
-					-- Now that we're inside we need to see if there's anything worth announcing
-					
-					local tarname = UnitName("target");
-					local numitems = GetNumLootItems();
-					
-					-- Instances sometimes have Chests, so we need to catch that error before it happens
+					for i=1, numitems, 1 do
+						if (not LootSlotIsCoin(i)) then
+							local icon, name, quantity, quality= GetLootSlotInfo(i);	
 						
-					if ( tarclass == nil ) then
-						tarclass = "Chest";
-					end
-					if ( tarname == nil ) then
-						tarname = "Chest";
-					end
-					
-					if ( not ( lasttarname == tarname ) ) then
-					
-						for i=1, numitems, 1 do
-							if (not LootSlotIsCoin(i)) then
-								local icon, name, quantity, quality= GetLootSlotInfo(i);	
+							--[[ debug 
+							ChatFrame1:AddMessage( "-- Found item: " .. name .. " Quality: " .. quality, .9, 0, .9 );	
+							--]]
+						
+							-- Quality: 0 is Gray, 1 is White, 2 is Green, 3 is Blue, 4 is Purple, and 5 is Orange
+							-- We only want to announce if the Quality is above Green ( > 2 ) for bosses or chests
+						
+							if ( quality > 2 ) then
+								local itemlink = GetLootSlotLink(i);
 							
 								--[[ debug 
-								ChatFrame1:AddMessage( "-- Found item: " .. name .. " Quality: " .. quality, .9, 0, .9 );	
+								ChatFrame1:AddMessage( "-- " .. tarclass .. ": " .. tarname .. " Dropped: " .. itemlink, .9, 0, .9 );
 								--]]
+								
+								-- Since there are two types of "group" (Party or Raid) we have to do something special for them.
 							
-								-- Quality: 0 is Gray, 1 is White, 2 is Green, 3 is Blue, 4 is Purple, and 5 is Orange
-								-- We only want to announce if the Quality is above Green ( > 2 ) for bosses or chests
-							
-								if ( quality > 2 ) then
-									local itemlink = GetLootSlotLink(i);
-								
-									--[[ debug 
-									ChatFrame1:AddMessage( "-- " .. tarclass .. ": " .. tarname .. " Dropped: " .. itemlink, .9, 0, .9 );
-									--]]
-								
-									-- Since there are two types of "group" we have to do something special for them.
-								
-									if	( RareAnnounceConfig.ANNOUNCE_BOSS_CHANNEL == "group" ) then
-										local partyorraid;
-										if ( UnitInRaid("player") ) then
-											partyorraid = "raid";
-										else
-											partyorraid = "party";
-										end
-										SendChatMessage( tarclass .. ": " .. tarname .. " Dropped: " .. itemlink  , partyorraid , nil , nil);
+								if	( RareAnnounceConfig.ANNOUNCE_BOSS_CHANNEL == "group" ) then
+									local partyorraid;
+									if ( UnitInRaid("player") ) then
+										partyorraid = "raid";
 									else
-										SendChatMessage( tarclass .. ": " .. tarname .. " Dropped: " .. itemlink  , RareAnnounceConfig.ANNOUNCE_BOSS_CHANNEL , nil , nil );
+										partyorraid = "party";
 									end
+									SendChatMessage( tarclass .. ": " .. tarname .. " Dropped: " .. itemlink  , partyorraid , nil , nil);
+								elseif (type(RareAnnounceConfig.ANNOUNCE_BOSS_CHANNEL) == "number") then
+									SendChatMessage( tarclass .. ": " .. tarname .. " Dropped: " .. itemlink  , "channel" , nil , RareAnnounceConfig.ANNOUNCE_BOSS_CHANNEL );
+								else
+									SendChatMessage( tarclass .. ": " .. tarname .. " Dropped: " .. itemlink  , RareAnnounceConfig.ANNOUNCE_BOSS_CHANNEL , nil , nil );
 								end
 							end
 						end
-					
-						-- Since we don't want to constantly spam the chat if we loot the body multiple times
-						-- we copy the name of the last mob we announced to prevent announcing again.
-					
-						lasttarname = tarname;
 					end
+					
+					-- Since we don't want to constantly spam the chat if we loot the body multiple times
+					-- we copy the name of the last mob we announced to prevent announcing again.
+					
+					lasttarname = tarname;
 				end
 			end
 		end
 	end	
-end -- That's all. 482 lines of nightmarish code. With no library dependencies.
+end -- Getting more Complicated. 554 lines of nightmarish code. With no library dependencies.
