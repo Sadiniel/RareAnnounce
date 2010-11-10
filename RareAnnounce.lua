@@ -160,19 +160,22 @@ function RareMenu_Initialize(self)
 	info.tooltipText = "Announce to the /Yell chat channel";
 	UIDropDownMenu_AddButton(info);
 	
+	local channelList = RareAnnounceConfig.CHANNEL_LIST;
+	if not ( channelList == nil ) then
 	local n = #channelList;
-	for i=1 , n , 2 do
-		info.text = "#" .. channelList[i] .. ". " .. channelList[i+1];
-		info.func = RareMenu_OnClick;
-		info.value = channelList[i];
-		if ( info.value == selectedValue ) then
-			info.checked = 1;
-		else
-			info.checked = nil;
+		for i=1 , n , 2 do
+			info.text = "#" .. channelList[i] .. ". " .. channelList[i+1];
+			info.func = RareMenu_OnClick;
+			info.value = channelList[i];
+			if ( info.value == selectedValue ) then
+				info.checked = 1;
+			else
+				info.checked = nil;
+			end
+			info.tooltipTitle = "Channel";
+			info.tooltipText = "Announce to the " .. channelList[i+1] .. " chat channel";
+			UIDropDownMenu_AddButton(info);
 		end
-		info.tooltipTitle = "Channel";
-		info.tooltipText = "Announce to the " .. channelList[i+1] .. " chat channel";
-		UIDropDownMenu_AddButton(info);
 	end
 end
 
@@ -229,19 +232,22 @@ function BossMenu_Initialize(self)
 	info.tooltipText = "Announce to the /Yell chat channel";
 	UIDropDownMenu_AddButton(info);
 	
-	local n = #channelList;
-	for i=1 , n , 2 do
-		info.text = "#" .. channelList[i] .. ". " .. channelList[i+1];
-		info.func = BossMenu_OnClick;
-		info.value = channelList[i];
-		if ( info.value == selectedValue ) then
-			info.checked = 1;
-		else
-			info.checked = nil;
+	local channelList = RareAnnounceConfig.CHANNEL_LIST;
+	if not ( channelList == nil ) then
+		local n = #channelList;
+		for i=1 , n , 2 do
+			info.text = "#" .. channelList[i] .. ". " .. channelList[i+1];
+			info.func = BossMenu_OnClick;
+			info.value = channelList[i];
+			if ( info.value == selectedValue ) then
+				info.checked = 1;
+			else
+				info.checked = nil;
+			end
+			info.tooltipTitle = "Channel";
+			info.tooltipText = "Announce to the " .. channelList[i+1] .. " chat channel";
+			UIDropDownMenu_AddButton(info);
 		end
-		info.tooltipTitle = "Channel";
-		info.tooltipText = "Announce to the " .. channelList[i+1] .. " chat channel";
-		UIDropDownMenu_AddButton(info);
 	end
 end
 
@@ -265,14 +271,10 @@ function RareAnnounce_Cancel()
 	-- When you click that little "Cancel" button in the options window
 	-- the game replaces the information in the window with your Saved Variables
 	
-	-- local rarevalue = RareAnnounceConfig.ANNOUNCE_RARE_CHANNEL
-	-- local bossvalue = RareAnnounceConfig.ANNOUNCE_BOSS_CHANNEL
-	
 	AnnounceRareCheck:SetChecked(RareAnnounceConfig.ANNOUNCE_RARE);
 	RareMenu:SetValue(RareAnnounceConfig.ANNOUNCE_RARE_CHANNEL);
 	RareMenu:RefreshValue();
-	
-	
+		
 	AnnounceBossCheck:SetChecked(RareAnnounceConfig.ANNOUNCE_BOSS);
 	AnnounceBossLeaderCheck:SetChecked(RareAnnounceConfig.ANNOUNCE_BOSS_IF_LEADER);
 	AnnounceBossLooterCheck:SetChecked(RareAnnounceConfig.ANNOUNCE_BOSS_IF_LOOTER);
@@ -281,91 +283,21 @@ function RareAnnounce_Cancel()
 	
 end
 
-function ChannelTable()
-
-	local id1, name1, id2, name2, id3, name3, id4, name4, id5, name5, id6, name6, id7, name7, id8, name8, id9, name9 = GetChannelList();
-
-	if not ((id1 == nil) or (name1 == "General") or (name1 == "Trade") or (name1 == "LookingForGroup")) then
-		ChatFrame1:AddMessage( "Channel Number " .. id1 .. " Name: " .. name1, .9, 0, .9 );
-		tinsert(channelList, id1);
-		tinsert(channelList, name1);
-	end
-
-	if not ((id2 == nil) or (name2 == "General") or (name2 == "Trade") or (name2 == "LookingForGroup")) then
-		ChatFrame1:AddMessage( "Channel Number " .. id2 .. " Name: " .. name2, .9, 0, .9 );
-		tinsert(channelList, id2);
-		tinsert(channelList, name2);
-	end
-	
-	if not ((id3 == nil) or (name3 == "General") or (name3 == "Trade") or (name3 == "LookingForGroup")) then
-		ChatFrame1:AddMessage( "Channel Number " .. id3 .. " Name: " .. name3, .9, 0, .9 );	
-		tinsert(channelList, id3);
-		tinsert(channelList, name3); 
-	end
-	
-	if not ((id4 == nil) or (name4 == "General") or (name4 == "Trade") or (name4 == "LookingForGroup")) then 
-		ChatFrame1:AddMessage( "Channel Number " .. id4 .. " Name: " .. name4, .9, 0, .9 );
-		tinsert(channelList, id4);
-		tinsert(channelList, name4); 
-	end
-	
-	if not ((id5 == nil) or (name5 == "General") or (name5 == "Trade") or (name5 == "LookingForGroup")) then 
-		ChatFrame1:AddMessage( "Channel Number " .. id5 .. " Name: " .. name5, .9, 0, .9 );
-		tinsert(channelList, id5);
-		tinsert(channelList, name5); 
-	end
-	
-	if not ((id6 == nil) or (name6 == "General") or (name6 == "Trade") or (name6 == "LookingForGroup")) then 
-		ChatFrame1:AddMessage( "Channel Number " .. id6 .. " Name: " .. name6, .9, 0, .9 );
-		tinsert(channelList, id6);
-		tinsert(channelList, name6); 
-	end
-	
-	if not ((id7 == nil) or (name7 == "General") or (name7 == "Trade") or (name7 == "LookingForGroup")) then
-		ChatFrame1:AddMessage( "Channel Number " .. id7 .. " Name: " .. name7, .9, 0, .9 );	
-		tinsert(channelList, id7);
-		tinsert(channelList, name7); 
-	end
-	
-	if not ((id8 == nil) or (name8 == "General") or (name8 == "Trade") or (name8 == "LookingForGroup")) then 
-		ChatFrame1:AddMessage( "Channel Number " .. id8 .. " Name: " .. name8, .9, 0, .9 );
-		tinsert(channelList, id8);
-		tinsert(channelList, name8); 
-	end
-	
-	if not ((id9 == nil) or (name9 == "General") or (name9 == "Trade") or (name9 == "LookingForGroup")) then 
-		ChatFrame1:AddMessage( "Channel Number " .. id9 .. " Name: " .. name9, .9, 0, .9 );
-		tinsert(channelList, id9);
-		tinsert(channelList, name9); 
-	end
-end
-	
-
 function RareAnnounce_OnLoad(self)
 
 	-- Version message for the chat window and registering events
 	
 	ChatFrame1:AddMessage("RareAnnounce version " .. RAversion .. " loaded successfully.", .9, 0, .9);
 	self:RegisterEvent("LOOT_OPENED");
-	self:RegisterEvent("PLAYER_ENTERING_WORLD");
+	self:RegisterEvent("CHAT_MSG_CHANNEL_NOTICE");
 	self:RegisterEvent("PLAYER_LOGIN");
 	
 	-- If we don't have a Saved Variables entry, we will after this
 	-- Saved variables are by character so if you just want to announce on certain ones you can.
 	
-	if	(RareAnnounceConfig == nil) then
-		RareAnnounceConfig = {};
-	end
-	
-	if	RareAnnounceConfig.ANNOUNCE_RARE_CHANNEL == nil then RareAnnounceConfig.ANNOUNCE_RARE_CHANNEL = "guild"; end
-	if	RareAnnounceConfig.ANNOUNCE_BOSS_CHANNEL == nil then RareAnnounceConfig.ANNOUNCE_BOSS_CHANNEL = "group"; end
-	
-	channelList = {};
-	ChannelTable();
-	
-	-- Setting up the otions window
-
-	RareAnnounce_Config();
+	if	(RareAnnounceConfig == nil) then RareAnnounceConfig = {}; end
+	if	(RareAnnounceConfig.ANNOUNCE_RARE_CHANNEL == nil) then RareAnnounceConfig.ANNOUNCE_RARE_CHANNEL = "guild"; end
+	if	(RareAnnounceConfig.ANNOUNCE_BOSS_CHANNEL == nil) then RareAnnounceConfig.ANNOUNCE_BOSS_CHANNEL = "group"; end
 	
 	-- Everyone loves /commands, so much more convenient than clicking
 	-- 40 buttons to find the options window.
@@ -383,17 +315,59 @@ function RareAnnounce_SlashCommand()
 	InterfaceOptionsFrame_OpenToCategory(RareAnnounceOptions);
 end
 
-function RareAnnounce_OnEvent(self, event, ...)
+function RareAnnounce_OnEvent(self, event, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9)
 
 	-- Event catching:
 	
 	if	( event == "PLAYER_LOGIN" ) then
+		
+		-- Setting up the otions window
+
+		RareAnnounce_Config();
 	
 		-- We use the options window '_Cancel()' function to fill in the addon options window
 		-- from the saved variables file before we see it
 	
 		RareAnnounce_Cancel();
 		
+	elseif	(event == "CHAT_MSG_CHANNEL_NOTICE" ) then
+		
+		if	( ( arg1 == "YOU_JOINED" ) and ( arg7 == 0 ) ) then
+		
+			if RareAnnounceConfig.CHANNEL_LIST == nil then
+			
+				ChatFrame1:AddMessage( "Channel #" .. arg8 .. " Name: " .. arg9 .. " added to RareAnnounce channel list and will be available next time the UI reloads. (The UI reloads anytime you zone or you can force it with '/console reloadui'.", .9, 0, .9 );
+				RareAnnounceConfig.CHANNEL_LIST = { arg8, arg9 };
+				
+			elseif not ( tContains(RareAnnounceConfig.CHANNEL_LIST, arg8) ) then
+			
+				ChatFrame1:AddMessage( "Channel #" .. arg8 .. " Name: " .. arg9 .. " added to RareAnnounce channel list and will be available next time the UI reloads. (The UI reloads anytime you zone or you can force it with '/console reloadui'.", .9, 0, .9 );
+				tinsert(RareAnnounceConfig.CHANNEL_LIST, arg8);
+				tinsert(RareAnnounceConfig.CHANNEL_LIST, arg9); 
+				
+			end
+			
+		elseif ( ( arg1 == "YOU_LEFT" ) and ( arg7 == 0 ) ) then
+			
+			if ( arg8 == RareAnnounceConfig.ANNOUNCE_RARE_CHANNEL ) then
+			ChatFrame1:AddMessage( "You left Channel #" .. arg8 .. " Name: " .. arg9 .. ". Please change your Rare announcement channel", .9, 0, .9 );
+			elseif ( arg8 == RareAnnounceConfig.ANNOUNCE_BOSS_CHANNEL ) then
+			ChatFrame1:AddMessage( "You left Channel #" .. arg8 .. " Name: " .. arg9 .. ". Please change your Boss announcement channel", .9, 0, .9 );
+			end
+			
+			if tContains(RareAnnounceConfig.CHANNEL_LIST, arg8) then
+				local n = 1;
+				while RareAnnounceConfig.CHANNEL_LIST[n] do
+					if ( RareAnnounceConfig.CHANNEL_LIST[n] == arg8) then
+					tremove(RareAnnounceConfig.CHANNEL_LIST,n);
+					tremove(RareAnnounceConfig.CHANNEL_LIST,n);
+					end
+					n = n + 1;
+				end
+			end
+
+		end
+
 	elseif	( event == "LOOT_OPENED" ) then
 	
 		-- This is where the magic happens
@@ -439,7 +413,7 @@ function RareAnnounce_OnEvent(self, event, ...)
 							ChatFrame1:AddMessage( tarclass .. ": " .. tarname .. " Dropped: " .. itemlink, .9, 0, .9 );
 							--]]
 							
-							if (RareAnnounceConfig.ANNOUNCE_RARE_CHANNEL > 0) and (RareAnnounceConfig.ANNOUNCE_RARE_CHANNEL < 100) then
+							if (type(RareAnnounceConfig.ANNOUNCE_RARE_CHANNEL) == "number") then
 								SendChatMessage( tarclass .. ": " .. tarname .. " Dropped: " .. itemlink  , "channel" , nil , RareAnnounceConfig.ANNOUNCE_RARE_CHANNEL );
 							else
 								SendChatMessage( tarclass .. ": " .. tarname .. " Dropped: " .. itemlink  , RareAnnounceConfig.ANNOUNCE_RARE_CHANNEL , nil , nil );
@@ -551,4 +525,4 @@ function RareAnnounce_OnEvent(self, event, ...)
 			end
 		end
 	end	
-end -- Getting more Complicated. 554 lines of nightmarish code. With no library dependencies.
+end -- Getting more Complicated. 528 lines of nightmarish code. With no library dependencies.
