@@ -290,6 +290,7 @@ function RareAnnounce_OnLoad(self)
 	ChatFrame1:AddMessage("RareAnnounce version " .. RAversion .. " loaded successfully.", .9, 0, .9);
 	self:RegisterEvent("LOOT_OPENED");
 	self:RegisterEvent("CHAT_MSG_CHANNEL_NOTICE");
+	self:RegisterEvent("CHAT_MSG_ADDON");
 	self:RegisterEvent("PLAYER_LOGIN");
 	
 	-- If we don't have a Saved Variables entry, we will after this
@@ -313,6 +314,31 @@ function RareAnnounce_SlashCommand()
 	-- Talk about being lazy.
 	
 	InterfaceOptionsFrame_OpenToCategory(RareAnnounceOptions);
+end
+
+function RareAnnounce_Announce( targetName, dropText, itemList, channel )
+
+	if ( itemList[2] == nil ) then itemList[2] = " "; end
+	
+	if (type(channel) == "number") then
+		SendChatMessage( dropText .. itemList[1] .. itemList[2] , "channel" , nil , channel );
+	else
+		SendChatMessage( dropText .. itemList[1] .. itemList[2] , channel , nil , nil );
+		SendAddonMessage( "RareAnnounce" , targetName , channel , nil);
+	end
+	
+	if ( #itemList > 2 ) then
+	
+		for i=3, #itemList, 3 do
+			if ( itemList[i+1] == nil ) then itemList[i+1] = " "; end
+			if ( itemList[i+2] == nil ) then itemList[i+2] = " "; end
+			if (type(channel) == "number") then
+				SendChatMessage( itemList[i] .. itemList[i+1] .. itemList[i+2] , "channel" , nil , channel );
+			else
+				SendChatMessage( itemList[i] .. itemList[i+1] .. itemList[i+2] , channel , nil , nil );
+			end
+		end
+	end
 end
 
 function RareAnnounce_OnEvent(self, event, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9)
@@ -350,9 +376,11 @@ function RareAnnounce_OnEvent(self, event, arg1, arg2, arg3, arg4, arg5, arg6, a
 		elseif ( ( arg1 == "YOU_LEFT" ) and ( arg7 == 0 ) ) then
 			
 			if ( arg8 == RareAnnounceConfig.ANNOUNCE_RARE_CHANNEL ) then
-			ChatFrame1:AddMessage( "You left Channel #" .. arg8 .. " Name: " .. arg9 .. ". Please change your Rare announcement channel", .9, 0, .9 );
+				ChatFrame1:AddMessage( "You left Channel #" .. arg8 .. " Name: " .. arg9 .. ". Changing your Rare announcement channel to Guild.", .9, 0, .9 );
+				RareAnnounceConfig.ANNOUNCE_RARE_CHANNEL = "guild";
 			elseif ( arg8 == RareAnnounceConfig.ANNOUNCE_BOSS_CHANNEL ) then
-			ChatFrame1:AddMessage( "You left Channel #" .. arg8 .. " Name: " .. arg9 .. ". Please change your Boss announcement channel", .9, 0, .9 );
+				ChatFrame1:AddMessage( "You left Channel #" .. arg8 .. " Name: " .. arg9 .. ". Changing your Boss announcement channel to Group.", .9, 0, .9 );
+				RareAnnounceConfig.ANNOUNCE_BOSS_CHANNEL = "group";
 			end
 			
 			if tContains(RareAnnounceConfig.CHANNEL_LIST, arg8) then
@@ -368,12 +396,17 @@ function RareAnnounce_OnEvent(self, event, arg1, arg2, arg3, arg4, arg5, arg6, a
 
 		end
 
+	elseif	( ( event == "CHAT_MSG_ADDON" ) and ( arg1 == "RareAnnounce" ) ) then
+		
+		RareAnnounceConfig.LAST_TARGET = arg2;
+	
 	elseif	( event == "LOOT_OPENED" ) then
 	
 		-- This is where the magic happens
 		
 		local targetclass = UnitClassification("target");
 		local tarclass
+		local droptext
 		
 		-- The API function 'UnitClassification("target")' uses all lowercase letters
 		-- so we change them here to something that looks better in chat.
@@ -391,35 +424,41 @@ function RareAnnounce_OnEvent(self, event, arg1, arg2, arg3, arg4, arg5, arg6, a
 		-- Rare Section starts here
 		
 		if	( RareAnnounceConfig.ANNOUNCE_RARE ) then
-			if	( targetclass == "rare" ) or
-				( targetclass == "rareelite" ) then
+			if	( ( targetclass == "rare" ) or ( targetclass == "rareelite" ) ) then
 				local numitems = GetNumLootItems();
-				for i=1, numitems, 1 do
-					if ( not LootSlotIsCoin(i)) then
-						local icon, name, quantity, quality = GetLootSlotInfo(i);
-						
-						--[[ debug
-						ChatFrame1:AddMessage( "Found item: " .. name .. " Quality: " .. quality, .9, 0, .9 );
-						--]]
-						
-						-- Quality: 0 is Gray, 1 is White, 2 is Green, 3 is Blue, 4 is Purple, and 5 is Orange
-						-- We only want to announce if the Quality is above White ( > 1 ) for rares
-							
-						if (quality > 1) then
-							local itemlink = GetLootSlotLink(i);
-							local tarname = UnitName("target");
+				local tarname = UnitName("target");
+				
+				if ( not ( RareAnnounceConfig.LAST_TARGET == tarname ) ) then
+					local lootTable = {};
+					for i=1, numitems, 1 do
+						if ( not LootSlotIsCoin(i)) then
+							local icon, name, quantity, quality = GetLootSlotInfo(i);
 							
 							--[[ debug
-							ChatFrame1:AddMessage( tarclass .. ": " .. tarname .. " Dropped: " .. itemlink, .9, 0, .9 );
+							ChatFrame1:AddMessage( "Found item: " .. name .. " Quality: " .. quality, .9, 0, .9 );
 							--]]
+						
+							-- Quality: 0 is Gray, 1 is White, 2 is Green, 3 is Blue, 4 is Purple, and 5 is Orange
+							-- We only want to announce if the Quality is above White ( > 1 ) for rares
 							
-							if (type(RareAnnounceConfig.ANNOUNCE_RARE_CHANNEL) == "number") then
-								SendChatMessage( tarclass .. ": " .. tarname .. " Dropped: " .. itemlink  , "channel" , nil , RareAnnounceConfig.ANNOUNCE_RARE_CHANNEL );
-							else
-								SendChatMessage( tarclass .. ": " .. tarname .. " Dropped: " .. itemlink  , RareAnnounceConfig.ANNOUNCE_RARE_CHANNEL , nil , nil );
+							if (quality > 1) then
+								local itemlink = GetLootSlotLink(i);
+								droptext = tarclass .. ": " .. tarname .. " Dropped: ";
+							
+								--[[ debug
+								ChatFrame1:AddMessage( tarclass .. ": " .. tarname .. " Dropped: " .. itemlink, .9, 0, .9 );
+								--]]
+							
+								tinsert(lootTable, itemlink);
 							end
 						end
 					end
+					
+					if ( #lootTable > 0 ) then
+						RareAnnounce_Announce( tarname, droptext, lootTable, RareAnnounceConfig.ANNOUNCE_RARE_CHANNEL );				
+					end
+					
+					RareAnnounceConfig.LAST_TARGET = tarname;
 				end
 			end
 		end
@@ -468,17 +507,17 @@ function RareAnnounce_OnEvent(self, event, arg1, arg2, arg3, arg4, arg5, arg6, a
 				
 				local tarname = UnitName("target");
 				local numitems = GetNumLootItems();
+				local droptext;
 				
 				-- Instances sometimes have Chests, so we need to catch that error before it happens
 					
 				if ( tarclass == nil ) then
 					tarclass = "Chest";
-				end
-				if ( tarname == nil ) then
 					tarname = "Chest";
 				end
 				
-				if ( not ( lasttarname == tarname ) ) then
+				if ( not ( RareAnnounceConfig.LAST_TARGET == tarname ) ) then
+					local lootTable = {};
 				
 					for i=1, numitems, 1 do
 						if (not LootSlotIsCoin(i)) then
@@ -488,41 +527,51 @@ function RareAnnounce_OnEvent(self, event, arg1, arg2, arg3, arg4, arg5, arg6, a
 							ChatFrame1:AddMessage( "-- Found item: " .. name .. " Quality: " .. quality, .9, 0, .9 );	
 							--]]
 						
+							if ( tarclass == "Chest" ) then
+								droptext = "Chest Contained: ";
+							else
+								droptext = tarclass .. ": " .. tarname .. " Dropped: ";
+							end
+							
 							-- Quality: 0 is Gray, 1 is White, 2 is Green, 3 is Blue, 4 is Purple, and 5 is Orange
 							-- We only want to announce if the Quality is above Green ( > 2 ) for bosses or chests
 						
 							if ( quality > 2 ) then
 								local itemlink = GetLootSlotLink(i);
-							
-								--[[ debug 
-								ChatFrame1:AddMessage( "-- " .. tarclass .. ": " .. tarname .. " Dropped: " .. itemlink, .9, 0, .9 );
-								--]]
 								
-								-- Since there are two types of "group" (Party or Raid) we have to do something special for them.
-							
-								if	( RareAnnounceConfig.ANNOUNCE_BOSS_CHANNEL == "group" ) then
-									local partyorraid;
-									if ( UnitInRaid("player") ) then
-										partyorraid = "raid";
-									else
-										partyorraid = "party";
-									end
-									SendChatMessage( tarclass .. ": " .. tarname .. " Dropped: " .. itemlink  , partyorraid , nil , nil);
-								elseif (type(RareAnnounceConfig.ANNOUNCE_BOSS_CHANNEL) == "number") then
-									SendChatMessage( tarclass .. ": " .. tarname .. " Dropped: " .. itemlink  , "channel" , nil , RareAnnounceConfig.ANNOUNCE_BOSS_CHANNEL );
-								else
-									SendChatMessage( tarclass .. ": " .. tarname .. " Dropped: " .. itemlink  , RareAnnounceConfig.ANNOUNCE_BOSS_CHANNEL , nil , nil );
+								local itemString = string.match(itemlink, "item[%-?%d:]+");
+								local linkType, itemId, _, _, _, _, _, _, _ = strsplit(":", itemString);
+								
+								if ( itemId < 30311 ) or ( itemId > 30318 ) then
+									tinsert(lootTable, itemlink);
 								end
+							
 							end
+						end
+					end
+					
+					-- Since there are two types of "group" (Party or Raid) we have to do something special for them.
+					
+					if ( #lootTable > 0 ) then
+						if	( RareAnnounceConfig.ANNOUNCE_BOSS_CHANNEL == "group" ) then
+							local partyorraid;
+							if ( UnitInRaid("player") ) then
+								partyorraid = "raid";
+							else
+								partyorraid = "party";
+							end
+							RareAnnounce_Announce( tarname, droptext, lootTable, partyorraid );
+						else
+						RareAnnounce_Announce( tarname, droptext, lootTable, RareAnnounceConfig.ANNOUNCE_BOSS_CHANNEL );
 						end
 					end
 					
 					-- Since we don't want to constantly spam the chat if we loot the body multiple times
 					-- we copy the name of the last mob we announced to prevent announcing again.
 					
-					lasttarname = tarname;
+					RareAnnounceConfig.LAST_TARGET = tarname;
 				end
 			end
 		end
 	end	
-end -- Getting more Complicated. 528 lines of nightmarish code. With no library dependencies.
+end -- Getting more Complicated. 577 lines of nightmarish code. With no library dependencies.
