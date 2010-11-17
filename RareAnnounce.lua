@@ -569,7 +569,9 @@ function RareAnnounce_OnEvent(self, event, arg1, arg2, arg3, arg4, arg5, arg6, a
 					-- Since we don't want to constantly spam the chat if we loot the body multiple times
 					-- we copy the name of the last mob we announced to prevent announcing again.
 					
-					RareAnnounceConfig.LAST_TARGET = tarname;
+					if not ( tarname == "Chest" ) then
+						RareAnnounceConfig.LAST_TARGET = tarname;
+					end
 				end
 			end
 		end
