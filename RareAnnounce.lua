@@ -542,7 +542,8 @@ function RareAnnounce_OnEvent(self, event, arg1, arg2, arg3, arg4, arg5, arg6, a
 								local itemString = string.match(itemlink, "item[%-?%d:]+");
 								local linkType, itemId, _, _, _, _, _, _, _ = strsplit(":", itemString);
 								
-								if ( itemId < 30311 ) or ( itemId > 30318 ) then
+								-- ChatFrame1:AddMessage( "-- ItemID: " .. itemId, .9, 0, .9 );
+								if ( tonumber(itemId) < 30311 ) or ( tonumber(itemId) > 30318 ) then
 									tinsert(lootTable, itemlink);
 								end
 							
@@ -569,9 +570,10 @@ function RareAnnounce_OnEvent(self, event, arg1, arg2, arg3, arg4, arg5, arg6, a
 					-- Since we don't want to constantly spam the chat if we loot the body multiple times
 					-- we copy the name of the last mob we announced to prevent announcing again.
 					
-					if not ( tarname == "Chest" ) then
+					if not ( tarclass == "Chest" ) then
 						RareAnnounceConfig.LAST_TARGET = tarname;
 					end
+					-- ChatFrame1:AddMessage( "-- Stored Last Target: " .. RareAnnounceConfig.LAST_TARGET, .9, 0, .9 );
 				end
 			end
 		end
