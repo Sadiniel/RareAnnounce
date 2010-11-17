@@ -333,9 +333,9 @@ function RareAnnounce_Announce( targetName, dropText, itemList, channel )
 			if ( itemList[i+1] == nil ) then itemList[i+1] = " "; end
 			if ( itemList[i+2] == nil ) then itemList[i+2] = " "; end
 			if (type(channel) == "number") then
-				SendChatMessage( itemList[i] .. itemList[i+1] .. itemList[i+2] , "channel" , nil , channel );
+				SendChatMessage( "#" .. (i/3)+1 .. " " .. itemList[i] .. itemList[i+1] .. itemList[i+2] , "channel" , nil , channel );
 			else
-				SendChatMessage( itemList[i] .. itemList[i+1] .. itemList[i+2] , channel , nil , nil );
+				SendChatMessage( "#" .. (i/3)+1 .. " " .. itemList[i] .. itemList[i+1] .. itemList[i+2] , channel , nil , nil );
 			end
 		end
 	end
@@ -480,8 +480,8 @@ function RareAnnounce_OnEvent(self, event, arg1, arg2, arg3, arg4, arg5, arg6, a
 					announcepermission = true;
 				elseif ( ( lootmethod == "master" ) or (lootmethod == "freeforall" ) ) then
 				
-					-- This is a cenfusing section.
-					-- If we're dealing with a boss and using Master Looter
+					-- This is a confusing section.
+					-- If we're dealing with a boss and using Master Looter or FFA
 					-- and you did not choose one of the special boss options,
 					-- or if you did and meet the requirements we announce the loot to chat.
 				
@@ -513,7 +513,11 @@ function RareAnnounce_OnEvent(self, event, arg1, arg2, arg3, arg4, arg5, arg6, a
 					
 				if ( tarclass == nil ) then
 					tarclass = "Chest";
-					tarname = "Chest";
+					if (GameTooltipTextLeft1:GetText()) then
+						tarname = GameTooltipTextLeft1:GetText();
+					else
+						tarname = "Chest";
+					end
 				end
 				
 				if ( not ( RareAnnounceConfig.LAST_TARGET == tarname ) ) then
@@ -528,7 +532,7 @@ function RareAnnounce_OnEvent(self, event, arg1, arg2, arg3, arg4, arg5, arg6, a
 							--]]
 						
 							if ( tarclass == "Chest" ) then
-								droptext = "Chest Contained: ";
+								droptext = tarname .. " Contained: ";
 							else
 								droptext = tarclass .. ": " .. tarname .. " Dropped: ";
 							end
@@ -540,10 +544,11 @@ function RareAnnounce_OnEvent(self, event, arg1, arg2, arg3, arg4, arg5, arg6, a
 								local itemlink = GetLootSlotLink(i);
 								
 								local itemString = string.match(itemlink, "item[%-?%d:]+");
-								local linkType, itemId, _, _, _, _, _, _, _ = strsplit(":", itemString);
+								local _, itemID, _, _, _, _, _, _, _ = strsplit(":", itemString);
 								
-								-- ChatFrame1:AddMessage( "-- ItemID: " .. itemId, .9, 0, .9 );
-								if ( tonumber(itemId) < 30311 ) or ( tonumber(itemId) > 30318 ) then
+								-- We don't care if the loot is one of the throwaway legendaries from The Eye
+								
+								if ( tonumber(itemID) < 30311 ) or ( tonumber(itemID) > 30318 ) then
 									tinsert(lootTable, itemlink);
 								end
 							
@@ -570,7 +575,7 @@ function RareAnnounce_OnEvent(self, event, arg1, arg2, arg3, arg4, arg5, arg6, a
 					-- Since we don't want to constantly spam the chat if we loot the body multiple times
 					-- we copy the name of the last mob we announced to prevent announcing again.
 					
-					if not ( tarclass == "Chest" ) then
+					if not ( tarname == "Chest" ) then
 						RareAnnounceConfig.LAST_TARGET = tarname;
 					end
 					-- ChatFrame1:AddMessage( "-- Stored Last Target: " .. RareAnnounceConfig.LAST_TARGET, .9, 0, .9 );
@@ -578,4 +583,4 @@ function RareAnnounce_OnEvent(self, event, arg1, arg2, arg3, arg4, arg5, arg6, a
 			end
 		end
 	end	
-end -- Getting more Complicated. 577 lines of nightmarish code. With no library dependencies.
+end -- Getting more Complicated. 586 lines of nightmarish code. With no library dependencies.
