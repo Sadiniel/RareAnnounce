@@ -161,7 +161,7 @@ function RareMenu_Initialize(self)
 	UIDropDownMenu_AddButton(info);
 	
 	local channelList = RareAnnounceConfig.CHANNEL_LIST;
-	if not ( channelList == nil ) then
+	if ( channelList ~= nil ) then
 	local n = #channelList;
 		for i=1 , n , 2 do
 			info.text = "#" .. channelList[i] .. ". " .. channelList[i+1];
@@ -233,7 +233,7 @@ function BossMenu_Initialize(self)
 	UIDropDownMenu_AddButton(info);
 	
 	local channelList = RareAnnounceConfig.CHANNEL_LIST;
-	if not ( channelList == nil ) then
+	if ( channelList ~= nil ) then
 		local n = #channelList;
 		for i=1 , n , 2 do
 			info.text = "#" .. channelList[i] .. ". " .. channelList[i+1];
@@ -428,7 +428,7 @@ function RareAnnounce_OnEvent(self, event, arg1, arg2, arg3, arg4, arg5, arg6, a
 				local numitems = GetNumLootItems();
 				local tarname = UnitName("target");
 				
-				if ( not ( RareAnnounceConfig.LAST_TARGET == tarname ) ) then
+				if ( RareAnnounceConfig.LAST_TARGET ~= tarname ) then
 					local lootTable = {};
 					for i=1, numitems, 1 do
 						if ( not LootSlotIsCoin(i)) then
@@ -475,9 +475,11 @@ function RareAnnounce_OnEvent(self, event, arg1, arg2, arg3, arg4, arg5, arg6, a
 			
 			local tempchannel = RareAnnounceConfig.ANNOUNCE_BOSS_CHANNEL;
 			local announcepermission = false;
+			local nongroupchatbypass = false
 			if	( ( targetclass == "worldboss" ) or ( inInstance ) ) then
 				if not ( ( tempchannel == "group" ) or ( tempchannel == "say" ) or ( tempchannel == "yell" ) ) then
 					announcepermission = true;
+					nongroupchatbypass = true;
 				elseif ( ( lootmethod == "master" ) or (lootmethod == "freeforall" ) ) then
 				
 					-- This is a confusing section.
@@ -493,7 +495,7 @@ function RareAnnounce_OnEvent(self, event, arg1, arg2, arg3, arg4, arg5, arg6, a
 						announcepermission = true;
 					elseif	( UnitLevel("player") > 59 ) then
 						if	( UnitLevel("target") > ( UnitLevel("player") - 5 ) ) then
-							if	not ( targetclass == "worldboss" ) then
+							if	( targetclass ~= "worldboss" ) then
 								announcepermission = true;
 							end
 						end
@@ -520,7 +522,7 @@ function RareAnnounce_OnEvent(self, event, arg1, arg2, arg3, arg4, arg5, arg6, a
 					end
 				end
 				
-				if ( not ( RareAnnounceConfig.LAST_TARGET == tarname ) ) then
+				if ( RareAnnounceConfig.LAST_TARGET ~= tarname or nongroupchatbypass ) then
 					local lootTable = {};
 				
 					for i=1, numitems, 1 do
@@ -575,7 +577,7 @@ function RareAnnounce_OnEvent(self, event, arg1, arg2, arg3, arg4, arg5, arg6, a
 					-- Since we don't want to constantly spam the chat if we loot the body multiple times
 					-- we copy the name of the last mob we announced to prevent announcing again.
 					
-					if not ( tarname == "Chest" ) then
+					if ( tarname ~= "Chest" ) then
 						RareAnnounceConfig.LAST_TARGET = tarname;
 					end
 					-- ChatFrame1:AddMessage( "-- Stored Last Target: " .. RareAnnounceConfig.LAST_TARGET, .9, 0, .9 );
@@ -583,4 +585,4 @@ function RareAnnounce_OnEvent(self, event, arg1, arg2, arg3, arg4, arg5, arg6, a
 			end
 		end
 	end	
-end -- Getting more Complicated. 586 lines of nightmarish code. With no library dependencies.
+end -- Getting more Complicated. 588 lines of nightmarish code. With no library dependencies.
