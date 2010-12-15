@@ -362,12 +362,12 @@ function RareAnnounce_OnEvent(self, event, arg1, arg2, arg3, arg4, arg5, arg6, a
 		
 			if RareAnnounceConfig.CHANNEL_LIST == nil then
 			
-				ChatFrame1:AddMessage( "Channel #" .. arg8 .. " Name: " .. arg9 .. " added to RareAnnounce channel list and will be available next time the UI reloads. (The UI reloads anytime you zone or you can force it with '/console reloadui'.", .9, 0, .9 );
+				ChatFrame1:AddMessage( "Channel #" .. arg8 .. " Name: " .. arg9 .. " added to RareAnnounce channel list and will be available next time the UI reloads. (The UI reloads anytime you zone or you can force it with '/console reloadui'.)", .9, 0, .9 );
 				RareAnnounceConfig.CHANNEL_LIST = { arg8, arg9 };
 				
 			elseif not ( tContains(RareAnnounceConfig.CHANNEL_LIST, arg8) ) then
 			
-				ChatFrame1:AddMessage( "Channel #" .. arg8 .. " Name: " .. arg9 .. " added to RareAnnounce channel list and will be available next time the UI reloads. (The UI reloads anytime you zone or you can force it with '/console reloadui'.", .9, 0, .9 );
+				ChatFrame1:AddMessage( "Channel #" .. arg8 .. " Name: " .. arg9 .. " added to RareAnnounce channel list and will be available next time the UI reloads. (The UI reloads anytime you zone or you can force it with '/console reloadui'.)", .9, 0, .9 );
 				tinsert(RareAnnounceConfig.CHANNEL_LIST, arg8);
 				tinsert(RareAnnounceConfig.CHANNEL_LIST, arg9); 
 				
