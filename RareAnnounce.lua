@@ -3,6 +3,11 @@
 
 local RAversion = GetAddOnMetadata("RareAnnounce", "Version");
 local RareAnnounce = CreateFrame("Frame", "RareAnnounce");
+local RareAnnounceLocal = CreateFrame("Frame", "RareAnnounceLocal", UIParent);
+local BlockedItemIDs = {	30311, 30312, 30313, 30314, 30315, 30316, 30317, 30318, -- Throwaway Legendaries from the Eye
+							10978, 11084, 11138, 11139, 11177, 11178, 14343, 14344, 20725, 22448, 22449, 22450, 34053, 34052, 34057, 52720, 52721, 52722, -- Enchanting Materials
+							15410, 44128, 52980, -- Skinning Materials
+							}
 
 function RareAnnounce_Config()
 
@@ -49,11 +54,23 @@ function RareAnnounce_Config()
 	RareAnnounceOptions.AnnounceBossChannelText:SetText("Boss Announcement Channel");
 	RareAnnounceOptions.AnnounceBossChannelText:SetPoint("TOPLEFT", RareAnnounceOptions,"TOPLEFT" , 190, -247);
 	
+	-- RareAnnounceOptions.AnnounceLocalCheck = CreateFrame("CheckButton", "AnnounceLocalCheck", RareAnnounceOptions, "InterfaceOptionsCheckButtonTemplate");
+	-- AnnounceLocalCheckText:SetText("Enable display of announced drops in a window.");
+	-- RareAnnounceOptions.AnnounceLocalCheck:SetPoint("TOPLEFT", RareAnnounceOptions, "TOPLEFT", 15, -310);
+	
 	RareAnnounceOptions.okay = function (self) RareAnnounce_Okay(); end;
 	RareAnnounceOptions.cancel = function (self) RareAnnounce_Cancel(); end;
+	RareAnnounceOptions.default = function (self) RareAnnounce_Default(); end;
 end
 
 function RareMenu_OnEvent(self, event, ...)
+	
+	-- All this terrible code you see in the next six functions are what
+	-- make the DropDownBoxes work. The code is ugly as sin and a terrible
+	-- pain to work with, but it's the only thing I found that would produce
+	-- functional results.
+	
+	-- This is basically copied directly from the Blizzard Options Panel.
 	
 	local value = RareAnnounceConfig.ANNOUNCE_RARE_CHANNEL;
 	self.defaultValue = "guild";
@@ -109,6 +126,10 @@ end
 
 function RareMenu_OnClick( self )
 
+	-- These two functions may look entirely pointless and look like
+	-- something you could just write in the appropriate locations
+	-- but I assure you, that doesn't work.
+	
 	RareMenu:SetValue(self.value);
 
 end
@@ -120,6 +141,8 @@ function BossMenu_OnClick( self )
 end
 
 function RareMenu_Initialize(self)
+	
+	-- Making the DropDownBox List for the Rare Menu.
 	
 	local selectedValue = UIDropDownMenu_GetSelectedValue(self);
 	local info = UIDropDownMenu_CreateInfo();
@@ -180,6 +203,9 @@ function RareMenu_Initialize(self)
 end
 
 function BossMenu_Initialize(self)
+	
+	-- Making the DropDownBox List for the Boss Menu.
+	-- The lists are different because the Boss list has more destination options.
 	
 	local selectedValue = UIDropDownMenu_GetSelectedValue(self);
 	local info = UIDropDownMenu_CreateInfo();
@@ -264,6 +290,8 @@ function RareAnnounce_Okay()
 	RareAnnounceConfig.ANNOUNCE_BOSS_IF_LOOTER = AnnounceBossLooterCheck:GetChecked();
 	RareAnnounceConfig.ANNOUNCE_BOSS_CHANNEL = UIDropDownMenu_GetSelectedValue(BossMenu);
 	
+	-- RareAnnounceConfig.LOCAL_DISPLAY = AnnounceLocalCheck:GetChecked();
+	
 end
 
 function RareAnnounce_Cancel()
@@ -281,17 +309,39 @@ function RareAnnounce_Cancel()
 	BossMenu:SetValue(RareAnnounceConfig.ANNOUNCE_BOSS_CHANNEL);
 	BossMenu:RefreshValue();
 	
+	-- AnnounceLocalCheck:SetChecked(RareAnnounceConfig.LOCAL_DISPLAY);
+	
+end
+
+function RareAnnounce_Default()
+
+	-- When you click that little "Default" button in the options window
+	-- the game replaces the information in the window with these defaults
+	
+	AnnounceRareCheck:SetChecked(nil);
+	RareMenu:SetValue("guild");
+	RareMenu:RefreshValue();
+		
+	AnnounceBossCheck:SetChecked(nil);
+	AnnounceBossLeaderCheck:SetChecked(1);
+	AnnounceBossLooterCheck:SetChecked(1);
+	BossMenu:SetValue("group");
+	BossMenu:RefreshValue();
+	
+	-- AnnounceLocalCheck:SetChecked(nil);
+	
 end
 
 function RareAnnounce_OnLoad(self)
 
 	-- Version message for the chat window and registering events
 	
-	ChatFrame1:AddMessage("RareAnnounce version " .. RAversion .. " loaded successfully.", .9, 0, .9);
+	-- ChatFrame1:AddMessage("RareAnnounce version " .. RAversion .. " loaded.", .9, 0, .9);
 	self:RegisterEvent("LOOT_OPENED");
 	self:RegisterEvent("CHAT_MSG_CHANNEL_NOTICE");
 	self:RegisterEvent("CHAT_MSG_ADDON");
 	self:RegisterEvent("PLAYER_LOGIN");
+	self:RegisterEvent("PLAYER_REGEN_DISABLED");
 	
 	-- If we don't have a Saved Variables entry, we will after this
 	-- Saved variables are by character so if you just want to announce on certain ones you can.
@@ -299,6 +349,8 @@ function RareAnnounce_OnLoad(self)
 	if	(RareAnnounceConfig == nil) then RareAnnounceConfig = {}; end
 	if	(RareAnnounceConfig.ANNOUNCE_RARE_CHANNEL == nil) then RareAnnounceConfig.ANNOUNCE_RARE_CHANNEL = "guild"; end
 	if	(RareAnnounceConfig.ANNOUNCE_BOSS_CHANNEL == nil) then RareAnnounceConfig.ANNOUNCE_BOSS_CHANNEL = "group"; end
+	
+	RareAnnounceConfig.ANNOUNCED_ITEMS_LIST = {};
 	
 	-- Everyone loves /commands, so much more convenient than clicking
 	-- 40 buttons to find the options window.
@@ -318,13 +370,17 @@ end
 
 function RareAnnounce_Announce( targetName, dropText, itemList, channel )
 
+	-- This section actually makes the announcements to chat and sends the target name
+	-- over the addon channel to prevent others using the addon from repeating the announcement
+	-- I added this function when I added the ability to announce more than 1 item per message
+	-- it was the only way it worked without adding dozens of lines of superfluous code
+	
 	if ( itemList[2] == nil ) then itemList[2] = " "; end
 	
 	if (type(channel) == "number") then
 		SendChatMessage( dropText .. itemList[1] .. itemList[2] , "channel" , nil , channel );
 	else
 		SendChatMessage( dropText .. itemList[1] .. itemList[2] , channel , nil , nil );
-		SendAddonMessage( "RareAnnounce" , targetName , channel , nil);
 	end
 	
 	if ( #itemList > 2 ) then
@@ -347,7 +403,8 @@ function RareAnnounce_OnEvent(self, event, arg1, arg2, arg3, arg4, arg5, arg6, a
 	
 	if	( event == "PLAYER_LOGIN" ) then
 		
-		-- Setting up the otions window
+		-- Setting up the otions window has to be done before the game starts up the UI
+		-- I chose to do it at login although there are a couple of other choices
 
 		RareAnnounce_Config();
 	
@@ -356,17 +413,33 @@ function RareAnnounce_OnEvent(self, event, arg1, arg2, arg3, arg4, arg5, arg6, a
 	
 		RareAnnounce_Cancel();
 		
-	elseif	(event == "CHAT_MSG_CHANNEL_NOTICE" ) then
+		ChatFrame1:AddMessage("RareAnnounce version " .. RAversion .. " loaded.", .9, 0, .9);
+		
+	elseif  ( event == "PLAYER_REGEN_DISABLED" ) then
+	
+		if	( RareAnnounceConfig.ANNOUNCED_ITEMS_LIST ~= nil ) then
+			wipe( RareAnnounceConfig.ANNOUNCED_ITEMS_LIST );
+		end
+		
+	elseif	( event == "CHAT_MSG_CHANNEL_NOTICE" ) then
 		
 		if	( ( arg1 == "YOU_JOINED" ) and ( arg7 == 0 ) ) then
 		
-			if RareAnnounceConfig.CHANNEL_LIST == nil then
+			-- When you join a Custom Chat Channel this section adds the channel information
+			-- to the SavedVariables so it can be selected next time the UI reloads
 			
+			if	( RareAnnounceConfig.CHANNEL_LIST == nil ) then
+			
+				-- If there's no channel list in SavedVariables we just make a new list
+				
 				ChatFrame1:AddMessage( "Channel #" .. arg8 .. " Name: " .. arg9 .. " added to RareAnnounce channel list and will be available next time the UI reloads. (The UI reloads anytime you zone or you can force it with '/console reloadui'.)", .9, 0, .9 );
 				RareAnnounceConfig.CHANNEL_LIST = { arg8, arg9 };
 				
 			elseif not ( tContains(RareAnnounceConfig.CHANNEL_LIST, arg8) ) then
 			
+				-- If there is a channel list we need to make sure this channel isn't in it
+				-- and add it to the list if it's not found
+				
 				ChatFrame1:AddMessage( "Channel #" .. arg8 .. " Name: " .. arg9 .. " added to RareAnnounce channel list and will be available next time the UI reloads. (The UI reloads anytime you zone or you can force it with '/console reloadui'.)", .9, 0, .9 );
 				tinsert(RareAnnounceConfig.CHANNEL_LIST, arg8);
 				tinsert(RareAnnounceConfig.CHANNEL_LIST, arg9); 
@@ -374,6 +447,9 @@ function RareAnnounce_OnEvent(self, event, arg1, arg2, arg3, arg4, arg5, arg6, a
 			end
 			
 		elseif ( ( arg1 == "YOU_LEFT" ) and ( arg7 == 0 ) ) then
+			
+			-- When you leave a custom chat channel we need to remove it from the channel list
+			-- but first we change your announcement channel if you were announcing to it
 			
 			if ( arg8 == RareAnnounceConfig.ANNOUNCE_RARE_CHANNEL ) then
 				ChatFrame1:AddMessage( "You left Channel #" .. arg8 .. " Name: " .. arg9 .. ". Changing your Rare announcement channel to Guild.", .9, 0, .9 );
@@ -383,10 +459,12 @@ function RareAnnounce_OnEvent(self, event, arg1, arg2, arg3, arg4, arg5, arg6, a
 				RareAnnounceConfig.ANNOUNCE_BOSS_CHANNEL = "group";
 			end
 			
+			-- This section searches the saved channel list and actually removes the channel
+			
 			if tContains(RareAnnounceConfig.CHANNEL_LIST, arg8) then
 				local n = 1;
 				while RareAnnounceConfig.CHANNEL_LIST[n] do
-					if ( RareAnnounceConfig.CHANNEL_LIST[n] == arg8) then
+					if ( RareAnnounceConfig.CHANNEL_LIST[n] == arg8 ) then
 					tremove(RareAnnounceConfig.CHANNEL_LIST,n);
 					tremove(RareAnnounceConfig.CHANNEL_LIST,n);
 					end
@@ -398,8 +476,22 @@ function RareAnnounce_OnEvent(self, event, arg1, arg2, arg3, arg4, arg5, arg6, a
 
 	elseif	( ( event == "CHAT_MSG_ADDON" ) and ( arg1 == "RareAnnounce" ) ) then
 		
-		RareAnnounceConfig.LAST_TARGET = arg2;
-	
+		if 	( tContains( RareAnnounceConfig.ANNOUNCED_ITEMS_LIST, arg2 ) ) then
+		else
+			tinsert( RareAnnounceConfig.ANNOUNCED_ITEMS_LIST, arg2 )
+			
+			if	( RareAnnounceConfig.LOCAL_DISPLAY ) then
+		
+			-- I'm making this section interesting so I can find it again. I have a lot of work to do to it.
+			-- #############################################################################################
+			-- #############################################################################################
+			
+			ChatFrame1:AddMessage( "It worked! If this was implemented you would have a window of icons right now. " .. arg2 , .9, 0, .9 );
+			
+			end
+		end
+		
+		
 	elseif	( event == "LOOT_OPENED" ) then
 	
 		-- This is where the magic happens
@@ -428,37 +520,41 @@ function RareAnnounce_OnEvent(self, event, arg1, arg2, arg3, arg4, arg5, arg6, a
 				local numitems = GetNumLootItems();
 				local tarname = UnitName("target");
 				
-				if ( RareAnnounceConfig.LAST_TARGET ~= tarname ) then
-					local lootTable = {};
-					for i=1, numitems, 1 do
-						if ( not LootSlotIsCoin(i)) then
-							local icon, name, quantity, quality = GetLootSlotInfo(i);
-							
-							--[[ debug
-							ChatFrame1:AddMessage( "Found item: " .. name .. " Quality: " .. quality, .9, 0, .9 );
-							--]]
+				local lootTable = {};
+				for i=1, numitems, 1 do
+					if ( not LootSlotIsCoin(i)) then
+						local icon, name, quantity, quality = GetLootSlotInfo(i);
 						
-							-- Quality: 0 is Gray, 1 is White, 2 is Green, 3 is Blue, 4 is Purple, and 5 is Orange
-							-- We only want to announce if the Quality is above White ( > 1 ) for rares
+						--[[ debug
+						ChatFrame1:AddMessage( "Found item: " .. name .. " Quality: " .. quality, .9, 0, .9 );
+						--]]
+					
+						-- Quality: 0 is Gray, 1 is White, 2 is Green, 3 is Blue, 4 is Purple, and 5 is Orange
+						-- We only want to announce if the Quality is above White ( > 1 ) for rares
+						
+						if (quality > 1) then
+							local itemlink = GetLootSlotLink(i);
+							droptext = tarclass .. ": " .. tarname .. " Dropped: ";
+						
+							--[[ debug
+							ChatFrame1:AddMessage( tarclass .. ": " .. tarname .. " Dropped: " .. itemlink, .9, 0, .9 );
+							--]]
 							
-							if (quality > 1) then
-								local itemlink = GetLootSlotLink(i);
-								droptext = tarclass .. ": " .. tarname .. " Dropped: ";
-							
-								--[[ debug
-								ChatFrame1:AddMessage( tarclass .. ": " .. tarname .. " Dropped: " .. itemlink, .9, 0, .9 );
-								--]]
-							
+							if	( tContains( RareAnnounceConfig.ANNOUNCED_ITEMS_LIST, itemlink ) ) then
+							else
 								tinsert(lootTable, itemlink);
+							
+								if (type(RareAnnounceConfig.ANNOUNCE_RARE_CHANNEL) == "number") then
+								else
+									SendAddonMessage( "RareAnnounce" , itemlink , RareAnnounceConfig.ANNOUNCE_RARE_CHANNEL , nil);
+								end
 							end
 						end
 					end
-					
-					if ( #lootTable > 0 ) then
-						RareAnnounce_Announce( tarname, droptext, lootTable, RareAnnounceConfig.ANNOUNCE_RARE_CHANNEL );				
-					end
-					
-					RareAnnounceConfig.LAST_TARGET = tarname;
+				end
+				
+				if ( #lootTable > 0 ) then
+					RareAnnounce_Announce( tarname, droptext, lootTable, RareAnnounceConfig.ANNOUNCE_RARE_CHANNEL );				
 				end
 			end
 		end
@@ -502,7 +598,7 @@ function RareAnnounce_OnEvent(self, event, arg1, arg2, arg3, arg4, arg5, arg6, a
 					end
 				end
 			end
-				
+			
 			if	(announcepermission) then	
 			
 				-- Now that we're inside we need to see if there's anything worth announcing
@@ -512,7 +608,7 @@ function RareAnnounce_OnEvent(self, event, arg1, arg2, arg3, arg4, arg5, arg6, a
 				local droptext;
 				
 				-- Instances sometimes have Chests, so we need to catch that error before it happens
-					
+				
 				if ( tarclass == nil ) then
 					tarclass = "Chest";
 					if (GameTooltipTextLeft1:GetText()) then
@@ -522,67 +618,75 @@ function RareAnnounce_OnEvent(self, event, arg1, arg2, arg3, arg4, arg5, arg6, a
 					end
 				end
 				
-				if ( RareAnnounceConfig.LAST_TARGET ~= tarname or nongroupchatbypass ) then
-					local lootTable = {};
+				local lootTable = {};
 				
-					for i=1, numitems, 1 do
-						if (not LootSlotIsCoin(i)) then
-							local icon, name, quantity, quality= GetLootSlotInfo(i);	
+				for i=1, numitems, 1 do
+					if (not LootSlotIsCoin(i)) then
+						local icon, name, quantity, quality= GetLootSlotInfo(i);	
 						
-							--[[ debug 
-							ChatFrame1:AddMessage( "-- Found item: " .. name .. " Quality: " .. quality, .9, 0, .9 );	
-							--]]
+						--[[ debug 
+						ChatFrame1:AddMessage( "-- Found item: " .. name .. " Quality: " .. quality, .9, 0, .9 );	
+						--]]
 						
-							if ( tarclass == "Chest" ) then
-								droptext = tarname .. " Contained: ";
-							else
-								droptext = tarclass .. ": " .. tarname .. " Dropped: ";
-							end
-							
-							-- Quality: 0 is Gray, 1 is White, 2 is Green, 3 is Blue, 4 is Purple, and 5 is Orange
-							-- We only want to announce if the Quality is above Green ( > 2 ) for bosses or chests
-						
-							if ( quality > 2 ) then
-								local itemlink = GetLootSlotLink(i);
-								
-								local itemString = string.match(itemlink, "item[%-?%d:]+");
-								local _, itemID, _, _, _, _, _, _, _ = strsplit(":", itemString);
-								
-								-- We don't care if the loot is one of the throwaway legendaries from The Eye
-								
-								if ( tonumber(itemID) < 30311 ) or ( tonumber(itemID) > 30318 ) then
-									tinsert(lootTable, itemlink);
-								end
-							
-							end
-						end
-					end
-					
-					-- Since there are two types of "group" (Party or Raid) we have to do something special for them.
-					
-					if ( #lootTable > 0 ) then
-						if	( RareAnnounceConfig.ANNOUNCE_BOSS_CHANNEL == "group" ) then
-							local partyorraid;
-							if ( UnitInRaid("player") ) then
-								partyorraid = "raid";
-							else
-								partyorraid = "party";
-							end
-							RareAnnounce_Announce( tarname, droptext, lootTable, partyorraid );
+						if ( tarclass == "Chest" ) then
+							droptext = tarname .. " Contained: ";
 						else
-						RareAnnounce_Announce( tarname, droptext, lootTable, RareAnnounceConfig.ANNOUNCE_BOSS_CHANNEL );
+							droptext = tarclass .. ": " .. tarname .. " Dropped: ";
+						end
+						
+						-- Quality: 0 is Gray, 1 is White, 2 is Green, 3 is Blue, 4 is Purple, and 5 is Orange
+						-- We only want to announce if the Quality is above Green ( > 2 ) for bosses or chests
+					
+						if ( quality > 2 ) then
+							local itemlink = GetLootSlotLink(i);
+							
+							local itemString = string.match(itemlink, "item[%-?%d:]+");
+							local _, itemID, _, _, _, _, _, _, _ = strsplit(":", itemString);
+								
+							-- We filter out items we don't want to hear about here.
+							
+							local tempID = tonumber(itemID);
+							
+							if ( tContains( BlockedItemIDs , tempID ) ) then
+							else
+							
+								if	( not(tContains( RareAnnounceConfig.ANNOUNCED_ITEMS_LIST, itemlink )) or nongroupchatbypass ) then
+								
+									tinsert(lootTable, itemlink);
+									
+									if	( RareAnnounceConfig.ANNOUNCE_BOSS_CHANNEL == "group" ) then
+										local partyorraid;
+										if ( UnitInRaid("player") ) then
+											partyorraid = "raid";
+										else
+											partyorraid = "party";
+										end
+										SendAddonMessage( "RareAnnounce" , itemlink , partyorraid , nil);
+									else
+										SendAddonMessage( "RareAnnounce" , itemlink , RareAnnounceConfig.ANNOUNCE_BOSS_CHANNEL , nil);
+									end
+								end
+							end
 						end
 					end
-					
-					-- Since we don't want to constantly spam the chat if we loot the body multiple times
-					-- we copy the name of the last mob we announced to prevent announcing again.
-					
-					if ( tarname ~= "Chest" ) then
-						RareAnnounceConfig.LAST_TARGET = tarname;
+				end
+				
+				-- Since there are two types of "group" (Party or Raid) we have to do something special for them.
+				
+				if ( #lootTable > 0 ) then
+					if	( RareAnnounceConfig.ANNOUNCE_BOSS_CHANNEL == "group" ) then
+						local partyorraid;
+						if ( UnitInRaid("player") ) then
+							partyorraid = "raid";
+						else
+							partyorraid = "party";
+						end
+						RareAnnounce_Announce( tarname, droptext, lootTable, partyorraid );
+					else
+					RareAnnounce_Announce( tarname, droptext, lootTable, RareAnnounceConfig.ANNOUNCE_BOSS_CHANNEL );
 					end
-					-- ChatFrame1:AddMessage( "-- Stored Last Target: " .. RareAnnounceConfig.LAST_TARGET, .9, 0, .9 );
 				end
 			end
 		end
 	end	
-end -- Getting more Complicated. 588 lines of nightmarish code. With no library dependencies.
+end -- 692 lines of nightmarish code. With no library dependencies.
