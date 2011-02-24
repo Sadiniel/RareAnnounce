@@ -540,10 +540,16 @@ function RareAnnounce_OnEvent(self, event, arg1, arg2, arg3, arg4, arg5, arg6, a
 							ChatFrame1:AddMessage( tarclass .. ": " .. tarname .. " Dropped: " .. itemlink, .9, 0, .9 );
 							--]]
 							
-							if	( tContains( RareAnnounceConfig.ANNOUNCED_ITEMS_LIST, itemlink ) ) then
+							if	( RareAnnounceConfig.ANNOUNCED_ITEMS_LIST == nil ) then
+								RareAnnounceConfig.ANNOUNCED_ITEMS_LIST = { itemlink };
+								tinsert(lootTable, itemlink);
+								if (type(RareAnnounceConfig.ANNOUNCE_RARE_CHANNEL) == "number") then
+								else
+									SendAddonMessage( "RareAnnounce" , itemlink , RareAnnounceConfig.ANNOUNCE_RARE_CHANNEL , nil);
+								end
+							elseif	( tContains( RareAnnounceConfig.ANNOUNCED_ITEMS_LIST, itemlink ) ) then
 							else
 								tinsert(lootTable, itemlink);
-							
 								if (type(RareAnnounceConfig.ANNOUNCE_RARE_CHANNEL) == "number") then
 								else
 									SendAddonMessage( "RareAnnounce" , itemlink , RareAnnounceConfig.ANNOUNCE_RARE_CHANNEL , nil);
@@ -650,7 +656,23 @@ function RareAnnounce_OnEvent(self, event, arg1, arg2, arg3, arg4, arg5, arg6, a
 							if ( tContains( BlockedItemIDs , tempID ) ) then
 							else
 							
-								if	( not(tContains( RareAnnounceConfig.ANNOUNCED_ITEMS_LIST, itemlink )) or nongroupchatbypass ) then
+								if	( RareAnnounceConfig.ANNOUNCED_ITEMS_LIST == nil ) then
+									RareAnnounceConfig.ANNOUNCED_ITEMS_LIST = { itemlink };
+									tinsert(lootTable, itemlink);
+									
+									if	( RareAnnounceConfig.ANNOUNCE_BOSS_CHANNEL == "group" ) then
+										local partyorraid;
+										if ( UnitInRaid("player") ) then
+											partyorraid = "raid";
+										else
+											partyorraid = "party";
+										end
+										SendAddonMessage( "RareAnnounce" , itemlink , partyorraid , nil);
+									else
+										SendAddonMessage( "RareAnnounce" , itemlink , RareAnnounceConfig.ANNOUNCE_BOSS_CHANNEL , nil);
+									end
+									
+								elseif	( not(tContains( RareAnnounceConfig.ANNOUNCED_ITEMS_LIST, itemlink )) or nongroupchatbypass ) then
 								
 									tinsert(lootTable, itemlink);
 									
