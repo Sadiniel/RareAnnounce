@@ -577,11 +577,9 @@ function RareAnnounce_OnEvent(self, event, arg1, arg2, arg3, arg4, arg5, arg6, a
 			
 			local tempchannel = RareAnnounceConfig.ANNOUNCE_BOSS_CHANNEL;
 			local announcepermission = false;
-			local nongroupchatbypass = false
 			if	( ( targetclass == "worldboss" ) or ( inInstance ) ) then
 				if not ( ( tempchannel == "group" ) or ( tempchannel == "say" ) or ( tempchannel == "yell" ) ) then
 					announcepermission = true;
-					nongroupchatbypass = true;
 				elseif ( ( lootmethod == "master" ) or (lootmethod == "freeforall" ) ) then
 				
 					-- This is a confusing section.
@@ -672,7 +670,9 @@ function RareAnnounce_OnEvent(self, event, arg1, arg2, arg3, arg4, arg5, arg6, a
 										SendAddonMessage( "RareAnnounce" , itemlink , RareAnnounceConfig.ANNOUNCE_BOSS_CHANNEL , nil);
 									end
 									
-								elseif	( not(tContains( RareAnnounceConfig.ANNOUNCED_ITEMS_LIST, itemlink )) or nongroupchatbypass ) then
+								elseif	( tContains( RareAnnounceConfig.ANNOUNCED_ITEMS_LIST, itemlink ) ) then
+								
+								else
 								
 									tinsert(lootTable, itemlink);
 									
@@ -711,4 +711,4 @@ function RareAnnounce_OnEvent(self, event, arg1, arg2, arg3, arg4, arg5, arg6, a
 			end
 		end
 	end	
-end -- 692 lines of nightmarish code. With no library dependencies.
+end -- 714 lines of nightmarish code. With no library dependencies.
