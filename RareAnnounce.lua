@@ -476,7 +476,7 @@ function RareAnnounce_OnEvent(self, event, arg1, arg2, arg3, arg4, arg5, arg6, a
 
 	elseif	( ( event == "CHAT_MSG_ADDON" ) and ( arg1 == "RareAnnounce" ) ) then
 		
-		if	( RareAnnounceConfig.ANNOUNCED_ITEMS_LIST == nil ) then RareAnnounceConfig.ANNOUNCED_ITEMS_LIST = {};
+		if	( RareAnnounceConfig.ANNOUNCED_ITEMS_LIST == nil ) then RareAnnounceConfig.ANNOUNCED_ITEMS_LIST = {}; end
 		
 		if 	( tContains( RareAnnounceConfig.ANNOUNCED_ITEMS_LIST, arg2 ) ) then
 		else
