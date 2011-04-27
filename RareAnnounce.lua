@@ -3,11 +3,18 @@
 
 local RAversion = GetAddOnMetadata("RareAnnounce", "Version");
 local RareAnnounce = CreateFrame("Frame", "RareAnnounce");
+--[[
 local RareAnnounceLocal = CreateFrame("Frame", "RareAnnounceLocal", UIParent);
+	RareAnnounceLocal:SetPoint("CENTER");
+	RareAnnounceLocal:SetHeight(60);
+	local tex = RareAnnounceLocal:CreateTexture("ARTWORK");
+	tex:SetAllPoints();
+	tex:SetTexture(1.0, 0.5, 0); tex:SetAlpha(0.5);
+--]]
 local BlockedItemIDs = {	30311, 30312, 30313, 30314, 30315, 30316, 30317, 30318, -- Throwaway Legendaries from the Eye
 							10978, 11084, 11138, 11139, 11177, 11178, 14343, 14344, 20725, 22448, 22449, 22450, 34053, 34052, 34057, 52720, 52721, 52722, -- Enchanting Materials
 							15410, 44128, 52980, -- Skinning Materials
-							}
+}
 
 function RareAnnounce_Config()
 
@@ -482,14 +489,34 @@ function RareAnnounce_OnEvent(self, event, arg1, arg2, arg3, arg4, arg5, arg6, a
 		else
 			tinsert( RareAnnounceConfig.ANNOUNCED_ITEMS_LIST, arg2 )
 			
-			if	( RareAnnounceConfig.LOCAL_DISPLAY ) then
-		
-			-- I'm making this section interesting so I can find it again. I have a lot of work to do to it.
-			-- #############################################################################################
-			-- #############################################################################################
+			--if	( RareAnnounceConfig.LOCAL_DISPLAY ) then -- debug
 			
-			ChatFrame1:AddMessage( "It worked! If this was implemented you would have a window of icons right now. " .. arg2 , .9, 0, .9 );
+			if	( ( RareAnnounceConfig.LOCAL_DISPLAY ) and ( GetNumLootItems() == nil ) ) then
 			
+				-- I'm making this section interesting so I can find it again. I have a lot of work to do to it.
+				-- #############################################################################################
+				-- #############################################################################################
+				
+				ChatFrame1:AddMessage( "It worked! If this was implemented you would have a window of icons right now. " .. arg2 , .9, 0, .9 );
+				
+				--[[
+				if	( #RareAnnounceConfig.ANNOUNCED_ITEMS_LIST == 1 ) then
+					RareAnnounceLocal:SetWidth(60);
+					local itemName, _, _, _, _, _, _, _, _, itemTexture, _ = GetItemInfo(RareAnnounceConfig.ANNOUNCED_ITEMS_LIST[1]);
+					
+					RareAnnounceLocal.itemButton = CreateFrame("Button", "itemButton", RareAnnounceLocal, "ItemButtonTemplate");
+					itemButton:SetNormalTexture(itemTexture);
+					itemButton:SetText(itemName);
+					itemButton:SetPoint("TOPLEFT", RareAnnounceLocal, "TOPLEFT", 0, 0);
+					
+					RareAnnounceLocal:Show();
+				elseif ( #RareAnnounceConfig.ANNOUNCED_ITEMS_LIST > 1 ) then
+					RareAnnounceLocal:Hide();
+					for i=1, #RareAnnounceConfig.ANNOUNCED_ITEMS_LIST, 1 do
+				
+					end
+				end
+				--]]			
 			end
 		end
 		
@@ -518,7 +545,7 @@ function RareAnnounce_OnEvent(self, event, arg1, arg2, arg3, arg4, arg5, arg6, a
 		-- Rare Section starts here
 		
 		if	( RareAnnounceConfig.ANNOUNCE_RARE ) then
-			if	( ( targetclass == "rare" ) or ( targetclass == "rareelite" ) ) then
+			if	( ( targetclass == "rare" ) or ( targetclass == "rareelite" ) ) then -- comment for debug
 				local numitems = GetNumLootItems();
 				local tarname = UnitName("target");
 				
@@ -527,20 +554,19 @@ function RareAnnounce_OnEvent(self, event, arg1, arg2, arg3, arg4, arg5, arg6, a
 					if ( not LootSlotIsCoin(i)) then
 						local icon, name, quantity, quality = GetLootSlotInfo(i);
 						
-						--[[ debug
-						ChatFrame1:AddMessage( "Found item: " .. name .. " Quality: " .. quality, .9, 0, .9 );
-						--]]
+						-- ChatFrame1:AddMessage( "Found item: " .. name .. " Quality: " .. quality, .9, 0, .9 ); -- debug
 					
 						-- Quality: 0 is Gray, 1 is White, 2 is Green, 3 is Blue, 4 is Purple, and 5 is Orange
 						-- We only want to announce if the Quality is above White ( > 1 ) for rares
 						
-						if (quality > 1) then
+						if (quality > 1) then -- change to 0 for debug
 							local itemlink = GetLootSlotLink(i);
+							
+							-- if ( tarclass == nil ) then tarclass = " "; end -- debug
+							
 							droptext = tarclass .. ": " .. tarname .. " Dropped: ";
 						
-							--[[ debug
-							ChatFrame1:AddMessage( tarclass .. ": " .. tarname .. " Dropped: " .. itemlink, .9, 0, .9 );
-							--]]
+							-- ChatFrame1:AddMessage( tarclass .. ": " .. tarname .. " Dropped: " .. itemlink, .9, 0, .9 ); -- debug
 							
 							if	( RareAnnounceConfig.ANNOUNCED_ITEMS_LIST == nil ) then
 								RareAnnounceConfig.ANNOUNCED_ITEMS_LIST = { itemlink };
@@ -564,7 +590,7 @@ function RareAnnounce_OnEvent(self, event, arg1, arg2, arg3, arg4, arg5, arg6, a
 				if ( #lootTable > 0 ) then
 					RareAnnounce_Announce( tarname, droptext, lootTable, RareAnnounceConfig.ANNOUNCE_RARE_CHANNEL );				
 				end
-			end
+			end -- comment for debug
 		end
 		
 		-- Boss Section starts here
@@ -587,7 +613,7 @@ function RareAnnounce_OnEvent(self, event, arg1, arg2, arg3, arg4, arg5, arg6, a
 					-- This is a confusing section.
 					-- If we're dealing with a boss and using Master Looter or FFA
 					-- and you did not choose one of the special boss options,
-					-- or if you did and meet the requirements we announce the loot to chat.
+					-- or if you did and meet the requirements we gain permission to announce the loot.
 				
 					if	( ( RareAnnounceConfig.ANNOUNCE_BOSS_IF_LEADER == nil ) and ( RareAnnounceConfig.ANNOUNCE_BOSS_IF_LOOTER == nil ) ) then
 						announcepermission = true;
@@ -713,4 +739,4 @@ function RareAnnounce_OnEvent(self, event, arg1, arg2, arg3, arg4, arg5, arg6, a
 			end
 		end
 	end	
-end -- 714 lines of nightmarish code. With no library dependencies.
+end -- 742 lines of nightmarish code. With no library dependencies.
