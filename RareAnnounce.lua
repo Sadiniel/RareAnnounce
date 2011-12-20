@@ -420,7 +420,11 @@ function RareAnnounce_OnEvent(self, event, arg1, arg2, arg3, arg4, arg5, arg6, a
 	
 		RareAnnounce_Cancel();
 		
-		ChatFrame1:AddMessage("RareAnnounce version " .. RAversion .. " loaded.", .9, 0, .9);
+		RARegistered = false;
+		RARegistered = RegisterAddonMessagePrefix("RareAnnounce");
+		if	( RARegistered ) then
+			ChatFrame1:AddMessage("RareAnnounce version " .. RAversion .. " loaded.", .9, 0, .9);
+		end
 		
 	elseif  ( event == "PLAYER_REGEN_DISABLED" ) then
 	
@@ -482,6 +486,8 @@ function RareAnnounce_OnEvent(self, event, arg1, arg2, arg3, arg4, arg5, arg6, a
 		end
 
 	elseif	( ( event == "CHAT_MSG_ADDON" ) and ( arg1 == "RareAnnounce" ) ) then
+	
+		-- ChatFrame1:AddMessage( "Recieved message: " .. arg1 .. " containing: " .. arg2 , .9, 0, .9 ); -- debug
 		
 		if	( RareAnnounceConfig.ANNOUNCED_ITEMS_LIST == nil ) then RareAnnounceConfig.ANNOUNCED_ITEMS_LIST = {}; end
 		
