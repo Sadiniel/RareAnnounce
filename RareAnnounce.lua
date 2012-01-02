@@ -383,12 +383,15 @@ function RareAnnounce_Announce( targetName, dropText, itemList, channel )
 	-- it was the only way it worked without adding dozens of lines of superfluous code
 	
 	if ( itemList[2] == nil ) then itemList[2] = " "; end
+	if ( RareAnnounceConfig.ANNOUNCED_ITEMS_LIST == nil ) then RareAnnounceConfig.ANNOUNCED_ITEMS_LIST = {}; end
 	
 	if (type(channel) == "number") then
 		SendChatMessage( dropText .. itemList[1] .. itemList[2] , "channel" , nil , channel );
 	else
 		SendChatMessage( dropText .. itemList[1] .. itemList[2] , channel , nil , nil );
 	end
+	tinsert( RareAnnounceConfig.ANNOUNCED_ITEMS_LIST, itemList[1] )
+	tinsert( RareAnnounceConfig.ANNOUNCED_ITEMS_LIST, itemList[2] )
 	
 	if ( #itemList > 2 ) then
 	
@@ -400,6 +403,9 @@ function RareAnnounce_Announce( targetName, dropText, itemList, channel )
 			else
 				SendChatMessage( "#" .. (i/3)+1 .. " " .. itemList[i] .. itemList[i+1] .. itemList[i+2] , channel , nil , nil );
 			end
+			tinsert( RareAnnounceConfig.ANNOUNCED_ITEMS_LIST, itemList[i] )
+			tinsert( RareAnnounceConfig.ANNOUNCED_ITEMS_LIST, itemList[i+1] )
+			tinsert( RareAnnounceConfig.ANNOUNCED_ITEMS_LIST, itemList[i+2] )
 		end
 	end
 end
@@ -487,11 +493,14 @@ function RareAnnounce_OnEvent(self, event, arg1, arg2, arg3, arg4, arg5, arg6, a
 
 	elseif	( ( event == "CHAT_MSG_ADDON" ) and ( arg1 == "RareAnnounce" ) ) then
 	
-		-- ChatFrame1:AddMessage( "Recieved message: " .. arg1 .. " containing: " .. arg2 , .9, 0, .9 ); -- debug
+		-- ChatFrame1:AddMessage( "Recieved message containing: " .. arg2 , .9, 0, .9 ); -- debug
 		
 		if	( RareAnnounceConfig.ANNOUNCED_ITEMS_LIST == nil ) then RareAnnounceConfig.ANNOUNCED_ITEMS_LIST = {}; end
 		
 		if 	( tContains( RareAnnounceConfig.ANNOUNCED_ITEMS_LIST, arg2 ) ) then
+			
+			-- ChatFrame1:AddMessage( arg2 .. " already announced, skipping." , .9, 0, .9 ); -- debug
+			
 		else
 			tinsert( RareAnnounceConfig.ANNOUNCED_ITEMS_LIST, arg2 )
 			
