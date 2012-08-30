@@ -1,7 +1,7 @@
-## Interface: 40300
+## Interface: 50001
 ## Title: RareAnnounce
-## Version: 4.3.0.03
-## Author: Sadiniel <Dispel Stupid> of Garona-US
+## Version: 5.0.4.1
+## Author: Sadiniel <Dispel Stupid> of Zul'jin (Horde)-US
 ## Notes: Tells others what loot your Rares or Bosses drop.
 ## SavedVariablesPerCharacter: RareAnnounceConfig
 
