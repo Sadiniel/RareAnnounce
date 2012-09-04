@@ -632,7 +632,7 @@ function RareAnnounce_OnEvent(self, event, arg1, arg2, arg3, arg4, arg5, arg6, a
 				
 					if	( ( RareAnnounceConfig.ANNOUNCE_BOSS_IF_LEADER == nil ) and ( RareAnnounceConfig.ANNOUNCE_BOSS_IF_LOOTER == nil ) ) then
 						announcepermission = true;
-					elseif	( ( IsPartyLeader() or IsRaidLeader() ) and ( RareAnnounceConfig.ANNOUNCE_BOSS_IF_LEADER ) ) then
+					elseif	( ( UnitIsGroupLeader("player") ) and ( RareAnnounceConfig.ANNOUNCE_BOSS_IF_LEADER ) ) then
 						announcepermission = true;
 					elseif	( ( masterlooterPartyID == 0 ) or ( masterlooterRaidID == UnitInRaid("player") ) and ( RareAnnounceConfig.ANNOUNCE_BOSS_IF_LOOTER ) ) then
 						announcepermission = true;
