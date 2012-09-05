@@ -668,7 +668,7 @@ function RareAnnounce_OnEvent(self, event, arg1, arg2, arg3, arg4, arg5, arg6, a
 				local lootTable = {};
 				
 				for i=1, numitems, 1 do
-					if (not LootSlotIsCoin(i)) then
+					if (LootSlotHasItem(i)) then
 						local icon, name, quantity, quality= GetLootSlotInfo(i);	
 						
 						--[[ debug 
