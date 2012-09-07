@@ -1,5 +1,6 @@
 -- RareAnnounce
--- By Sadiniel <Dispel Stupid> of Garona-US
+-- By Sadiniel <Dispel Stupid> of Zul'jin-Horde-US
+-- local DEBUG = true;
 
 local RAversion = GetAddOnMetadata("RareAnnounce", "Version");
 local RareAnnounce = CreateFrame("Frame", "RareAnnounce");
@@ -493,18 +494,16 @@ function RareAnnounce_OnEvent(self, event, arg1, arg2, arg3, arg4, arg5, arg6, a
 
 	elseif	( ( event == "CHAT_MSG_ADDON" ) and ( arg1 == "RareAnnounce" ) ) then
 	
-		-- ChatFrame1:AddMessage( "Recieved message containing: " .. arg2 , .9, 0, .9 ); -- debug
+		if ( DEBUG ) then ChatFrame1:AddMessage( "Recieved message containing: " .. arg2 , .9, 0, .9 ); end
 		
 		if	( RareAnnounceConfig.ANNOUNCED_ITEMS_LIST == nil ) then RareAnnounceConfig.ANNOUNCED_ITEMS_LIST = {}; end
 		
 		if 	( tContains( RareAnnounceConfig.ANNOUNCED_ITEMS_LIST, arg2 ) ) then
 			
-			-- ChatFrame1:AddMessage( arg2 .. " already announced, skipping." , .9, 0, .9 ); -- debug
+			if ( DEBUG ) then ChatFrame1:AddMessage( arg2 .. " already announced, skipping." , .9, 0, .9 ); end
 			
 		else
 			tinsert( RareAnnounceConfig.ANNOUNCED_ITEMS_LIST, arg2 )
-			
-			--if	( RareAnnounceConfig.LOCAL_DISPLAY ) then -- debug
 			
 			if	( ( RareAnnounceConfig.LOCAL_DISPLAY ) and ( GetNumLootItems() == nil ) ) then
 			
@@ -569,7 +568,7 @@ function RareAnnounce_OnEvent(self, event, arg1, arg2, arg3, arg4, arg5, arg6, a
 					if (LootSlotHasItem(i)) then
 						local icon, name, quantity, quality = GetLootSlotInfo(i);
 						
-						-- ChatFrame1:AddMessage( "Found item: " .. name .. " Quality: " .. quality, .9, 0, .9 ); -- debug
+						if ( DEBUG ) then ChatFrame1:AddMessage( "Found item: " .. name .. " Quality: " .. quality, .9, 0, .9 ); end
 					
 						-- Quality: 0 is Gray, 1 is White, 2 is Green, 3 is Blue, 4 is Purple, and 5 is Orange
 						-- We only want to announce if the Quality is above White ( > 1 ) for rares
@@ -581,7 +580,7 @@ function RareAnnounce_OnEvent(self, event, arg1, arg2, arg3, arg4, arg5, arg6, a
 							
 							droptext = tarclass .. ": " .. tarname .. " Dropped: ";
 						
-							-- ChatFrame1:AddMessage( tarclass .. ": " .. tarname .. " Dropped: " .. itemlink, .9, 0, .9 ); -- debug
+							if ( DEBUG ) then ChatFrame1:AddMessage( tarclass .. ": " .. tarname .. " Dropped: " .. itemlink, .9, 0, .9 ); end
 							
 							if	( RareAnnounceConfig.ANNOUNCED_ITEMS_LIST == nil ) then
 								RareAnnounceConfig.ANNOUNCED_ITEMS_LIST = { itemlink };
@@ -671,9 +670,7 @@ function RareAnnounce_OnEvent(self, event, arg1, arg2, arg3, arg4, arg5, arg6, a
 					if (LootSlotHasItem(i)) then
 						local icon, name, quantity, quality= GetLootSlotInfo(i);	
 						
-						--[[ debug 
-						ChatFrame1:AddMessage( "-- Found item: " .. name .. " Quality: " .. quality, .9, 0, .9 );	
-						--]]
+						if ( DEBUG ) then ChatFrame1:AddMessage( "-- Found item: " .. name .. " Quality: " .. quality, .9, 0, .9 ); end
 						
 						if ( tarclass == "Chest" ) then
 							droptext = tarname .. " Contained: ";
@@ -754,4 +751,4 @@ function RareAnnounce_OnEvent(self, event, arg1, arg2, arg3, arg4, arg5, arg6, a
 			end
 		end
 	end	
-end -- 742 lines of nightmarish code. With no library dependencies.
+end -- 754 lines of nightmarish code. With no library dependencies.
