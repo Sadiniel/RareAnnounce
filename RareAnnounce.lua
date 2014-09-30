@@ -13,8 +13,9 @@ local RareAnnounceLocal = CreateFrame("Frame", "RareAnnounceLocal", UIParent);
 	tex:SetTexture(1.0, 0.5, 0); tex:SetAlpha(0.5);
 --]]
 local BlockedItemIDs = {	30311, 30312, 30313, 30314, 30315, 30316, 30317, 30318, -- Throwaway Legendaries from the Eye
-							10978, 11084, 11138, 11139, 11177, 11178, 14343, 14344, 20725, 22448, 22449, 22450, 34053, 34052, 34057, 52720, 52721, 52722, -- Enchanting Materials
-							15410, 44128, 52980, -- Skinning Materials
+							10978, 11084, 11138, 11139, 11177, 11178, 14343, 14344, 20725, 22448, 22450, 22449, 34052, 34057, 34053, 52720, 105718, -- Enchanting Shards
+							52722, 52721, 74252, 102218, 94289, 74248, 74247, 80433, 115504, 115502, 113588, 111245, 113589, -- More Shards
+							15410, 44128, 52980, 98617, 72163, 110611, -- Skinning Materials
 }
 
 function RareAnnounce_Config()
