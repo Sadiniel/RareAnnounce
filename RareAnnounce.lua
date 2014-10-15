@@ -1,6 +1,6 @@
 -- RareAnnounce
 -- By Sadiniel <Dispel Stupid> of Zul'jin-Horde-US
--- local DEBUG = true;
+local DEBUG = false;
 
 local RAversion = GetAddOnMetadata("RareAnnounce", "Version");
 local RareAnnounce = CreateFrame("Frame", "RareAnnounce");
@@ -346,7 +346,7 @@ function RareAnnounce_OnLoad(self)
 	-- Version message for the chat window and registering events
 	
 	-- ChatFrame1:AddMessage("RareAnnounce version " .. RAversion .. " loaded.", .9, 0, .9);
-	self:RegisterEvent("LOOT_OPENED");
+	self:RegisterEvent("LOOT_READY");
 	self:RegisterEvent("CHAT_MSG_CHANNEL_NOTICE");
 	self:RegisterEvent("CHAT_MSG_ADDON");
 	self:RegisterEvent("PLAYER_LOGIN");
@@ -539,7 +539,7 @@ function RareAnnounce_OnEvent(self, event, arg1, arg2, arg3, arg4, arg5, arg6, a
 		end
 		
 		
-	elseif	( event == "LOOT_OPENED" ) then
+	elseif	( event == "LOOT_READY" ) then
 	
 		-- This is where the magic happens
 		
@@ -558,7 +558,11 @@ function RareAnnounce_OnEvent(self, event, arg1, arg2, arg3, arg4, arg5, arg6, a
 			tarclass = "Boss";
 		elseif	( targetclass == "elite" ) then
 			tarclass = "Elite";
+		else
+			tarclass = "";
 		end
+		
+		if ( DEBUG ) then ChatFrame1:AddMessage( "Target Class: " .. tarclass, .9, 0, .9 ); end
 		
 		-- Rare Section starts here
 		
@@ -566,6 +570,8 @@ function RareAnnounce_OnEvent(self, event, arg1, arg2, arg3, arg4, arg5, arg6, a
 			if	( ( targetclass == "rare" ) or ( targetclass == "rareelite" ) or DEBUG) then -- comment for debug
 				local numitems = GetNumLootItems();
 				local tarname = UnitName("target");
+				
+				if ( DEBUG ) then ChatFrame1:AddMessage( "Number of loot items: " .. numitems, .9, 0, .9 ); end
 				
 				local lootTable = {};
 				for i=1, numitems, 1 do
@@ -579,8 +585,6 @@ function RareAnnounce_OnEvent(self, event, arg1, arg2, arg3, arg4, arg5, arg6, a
 						
 						if ((quality > 1) or DEBUG) then -- change to 0 for debug
 							local itemlink = GetLootSlotLink(i);
-							
-							if ( tarclass == nil ) then tarclass = " "; end -- debug
 							
 							droptext = tarclass .. ": " .. tarname .. " Dropped: ";
 						
