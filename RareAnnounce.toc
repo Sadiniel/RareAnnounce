@@ -1,13 +1,9 @@
 ## Interface: 60000
 ## Title: RareAnnounce
-## Version: 6.0.0.1
+## Version: 6.0.0.2
 ## Author: Sadiniel <Dispel Stupid> of Zul'jin (Horde)-US
 ## Notes: Tells others what loot your Rares or Bosses drop.
 ## SavedVariablesPerCharacter: RareAnnounceConfig
-## X-Curse-Packaged-Version: 5.3.0.1
-## X-Curse-Project-Name: RareAnnounce
-## X-Curse-Project-ID: rareannounce
-## X-Curse-Repository-ID: wow/rareannounce/mainline
 
 RareAnnounce.lua
 RareAnnounce.xml

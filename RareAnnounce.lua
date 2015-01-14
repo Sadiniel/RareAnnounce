@@ -63,9 +63,21 @@ function RareAnnounce_Config()
 	RareAnnounceOptions.AnnounceBossChannelText:SetText("Boss Announcement Channel");
 	RareAnnounceOptions.AnnounceBossChannelText:SetPoint("TOPLEFT", RareAnnounceOptions,"TOPLEFT" , 190, -247);
 	
+	RareAnnounceOptions.AnnounceLootCheck = CreateFrame("CheckButton", "AnnounceLootCheck", RareAnnounceOptions, "InterfaceOptionsCheckButtonTemplate");
+	AnnounceLootCheckText:SetText("Enable Announcement of Special Loot. (LFR / Bonus Rolls)");
+	RareAnnounceOptions.AnnounceLootCheck:SetPoint("TOPLEFT", RareAnnounceOptions, "TOPLEFT", 15, -310);
+	
+	LootMenu = CreateFrame("Frame", "AnnounceLootChannel", RareAnnounceOptions, "UIDropDownMenuTemplate");
+	LootMenu:SetPoint("TOPLEFT", RareAnnounceOptions, "TOPLEFT" , 30, -340);
+	LootMenu_OnEvent(LootMenu);
+	
+	RareAnnounceOptions.AnnounceLootChannelText = RareAnnounceOptions:CreateFontString(nil, "OVERLAY", "GameFontNormal");
+	RareAnnounceOptions.AnnounceLootChannelText:SetText("Special Loot Announcement Channel");
+	RareAnnounceOptions.AnnounceLootChannelText:SetPoint("TOPLEFT", RareAnnounceOptions,"TOPLEFT" , 190, -347);
+	
 	-- RareAnnounceOptions.AnnounceLocalCheck = CreateFrame("CheckButton", "AnnounceLocalCheck", RareAnnounceOptions, "InterfaceOptionsCheckButtonTemplate");
 	-- AnnounceLocalCheckText:SetText("Enable display of announced drops in a window.");
-	-- RareAnnounceOptions.AnnounceLocalCheck:SetPoint("TOPLEFT", RareAnnounceOptions, "TOPLEFT", 15, -310);
+	-- RareAnnounceOptions.AnnounceLocalCheck:SetPoint("TOPLEFT", RareAnnounceOptions, "TOPLEFT", 15, -410);
 	
 	RareAnnounceOptions.okay = function (self) RareAnnounce_Okay(); end;
 	RareAnnounceOptions.cancel = function (self) RareAnnounce_Cancel(); end;
@@ -133,6 +145,33 @@ function BossMenu_OnEvent(self, event, ...)
 
 end
 
+function LootMenu_OnEvent(self, event, ...)
+	
+	local value = RareAnnounceConfig.ANNOUNCE_LOOT_CHANNEL;
+	self.defaultValue = "guild";
+	self.oldValue = value;
+	self.value = self.oldValue or self.defaultValue;
+	
+	UIDropDownMenu_Initialize(self, LootMenu_Initialize);
+	UIDropDownMenu_SetSelectedValue(self, value);
+
+	self.SetValue = 
+		function (self, value)
+			self.value = value;
+			UIDropDownMenu_SetSelectedValue(self, value);
+		end
+	self.GetValue =
+		function (self)
+			return UIDropDownMenu_GetSelectedValue(self);
+		end
+	self.RefreshValue =
+		function (self)
+			UIDropDownMenu_Initialize(self, LootMenu_Initialize);
+			UIDropDownMenu_SetSelectedValue(self, self.value);
+		end
+
+end
+
 function RareMenu_OnClick( self )
 
 	-- These two functions may look entirely pointless and look like
@@ -146,6 +185,12 @@ end
 function BossMenu_OnClick( self )
 	
 	BossMenu:SetValue(self.value);
+
+end
+
+function LootMenu_OnClick( self )
+	
+	LootMenu:SetValue(self.value);
 
 end
 
@@ -286,6 +331,44 @@ function BossMenu_Initialize(self)
 	end
 end
 
+function LootMenu_Initialize(self)
+	
+	-- Making the DropDownBox List for the Special Loot Menu. This list is much smaller.
+	
+	local selectedValue = UIDropDownMenu_GetSelectedValue(self);
+	local info = UIDropDownMenu_CreateInfo();
+		
+	info.text = "Guild";
+	info.func = LootMenu_OnClick;
+	info.value = "guild";
+	if ( info.value == selectedValue ) then
+		info.checked = 1;
+	else
+		info.checked = nil;
+	end
+	info.tooltipTitle = "Guild";
+	info.tooltipText = "Announce to the /Guild chat channel";
+	UIDropDownMenu_AddButton(info);
+	
+	local channelList = RareAnnounceConfig.CHANNEL_LIST;
+	if ( channelList ~= nil ) then
+	local n = #channelList;
+		for i=1 , n , 2 do
+			info.text = "#" .. channelList[i] .. ". " .. channelList[i+1];
+			info.func = LootMenu_OnClick;
+			info.value = channelList[i];
+			if ( info.value == selectedValue ) then
+				info.checked = 1;
+			else
+				info.checked = nil;
+			end
+			info.tooltipTitle = "Channel";
+			info.tooltipText = "Announce to the " .. channelList[i+1] .. " chat channel";
+			UIDropDownMenu_AddButton(info);
+		end
+	end
+end
+
 function RareAnnounce_Okay()
 
 	-- When you click that little "Okay" button in the options window
@@ -298,6 +381,9 @@ function RareAnnounce_Okay()
 	RareAnnounceConfig.ANNOUNCE_BOSS_IF_LEADER = AnnounceBossLeaderCheck:GetChecked();
 	RareAnnounceConfig.ANNOUNCE_BOSS_IF_LOOTER = AnnounceBossLooterCheck:GetChecked();
 	RareAnnounceConfig.ANNOUNCE_BOSS_CHANNEL = UIDropDownMenu_GetSelectedValue(BossMenu);
+	
+	RareAnnounceConfig.ANNOUNCE_LOOT = AnnounceLootCheck:GetChecked();
+	RareAnnounceConfig.ANNOUNCE_LOOT_CHANNEL = UIDropDownMenu_GetSelectedValue(LootMenu);
 	
 	-- RareAnnounceConfig.LOCAL_DISPLAY = AnnounceLocalCheck:GetChecked();
 	
@@ -318,6 +404,10 @@ function RareAnnounce_Cancel()
 	BossMenu:SetValue(RareAnnounceConfig.ANNOUNCE_BOSS_CHANNEL);
 	BossMenu:RefreshValue();
 	
+	AnnounceLootCheck:SetChecked(RareAnnounceConfig.ANNOUNCE_LOOT);
+	LootMenu:SetValue(RareAnnounceConfig.ANNOUNCE_LOOT_CHANNEL);
+	LootMenu:RefreshValue();
+	
 	-- AnnounceLocalCheck:SetChecked(RareAnnounceConfig.LOCAL_DISPLAY);
 	
 end
@@ -337,6 +427,10 @@ function RareAnnounce_Default()
 	BossMenu:SetValue("group");
 	BossMenu:RefreshValue();
 	
+	AnnounceLootCheck:SetChecked(nil);
+	LootMenu:SetValue("guild");
+	LootMenu:RefreshValue();
+	
 	-- AnnounceLocalCheck:SetChecked(nil);
 	
 end
@@ -351,6 +445,7 @@ function RareAnnounce_OnLoad(self)
 	self:RegisterEvent("CHAT_MSG_ADDON");
 	self:RegisterEvent("PLAYER_LOGIN");
 	self:RegisterEvent("PLAYER_REGEN_DISABLED");
+	self:RegisterEvent("SHOW_LOOT_TOAST");
 	
 	-- If we don't have a Saved Variables entry, we will after this
 	-- Saved variables are by character so if you just want to announce on certain ones you can.
@@ -358,6 +453,7 @@ function RareAnnounce_OnLoad(self)
 	if	(RareAnnounceConfig == nil) then RareAnnounceConfig = {}; end
 	if	(RareAnnounceConfig.ANNOUNCE_RARE_CHANNEL == nil) then RareAnnounceConfig.ANNOUNCE_RARE_CHANNEL = "guild"; end
 	if	(RareAnnounceConfig.ANNOUNCE_BOSS_CHANNEL == nil) then RareAnnounceConfig.ANNOUNCE_BOSS_CHANNEL = "group"; end
+	if	(RareAnnounceConfig.ANNOUNCE_LOOT_CHANNEL == nil) then RareAnnounceConfig.ANNOUNCE_LOOT_CHANNEL = "guild"; end
 	
 	RareAnnounceConfig.ANNOUNCED_ITEMS_LIST = {};
 	
@@ -538,7 +634,30 @@ function RareAnnounce_OnEvent(self, event, arg1, arg2, arg3, arg4, arg5, arg6, a
 			end
 		end
 		
+	
+	elseif	( event == "SHOW_LOOT_TOAST" ) then
 		
+		-- The Loot Toast is the popup box when you win an item from LFR or a Bonus Loot roll.
+		-- This is probably the easiest announcement ever since you don't need to compare it
+		-- with anything else, just check if you're inside an instance and pop it out.
+		
+		if ( RareAnnounceConfig.ANNOUNCE_LOOT ) then
+		
+			if ( typeIdentifier == "item" ) then
+			
+				local inInstance, instanceType = IsInInstance();
+			
+				if ( ( inInstance ) or ( DEBUG ) ) then
+					
+					if (type(RareAnnounceConfig.ANNOUNCE_LOOT_CHANNEL) == "number") then
+						SendChatMessage( "Received Personal Loot: " .. itemLink , "channel" , nil , channel );
+					else
+						SendChatMessage( "Received Personal Loot: " .. itemLink , channel , nil , nil );
+					end
+				end
+			end
+		end
+	
 	elseif	( event == "LOOT_READY" ) then
 	
 		-- This is where the magic happens
@@ -567,9 +686,11 @@ function RareAnnounce_OnEvent(self, event, arg1, arg2, arg3, arg4, arg5, arg6, a
 		-- Rare Section starts here
 		
 		if	( RareAnnounceConfig.ANNOUNCE_RARE ) then
-			if	( ( targetclass == "rare" ) or ( targetclass == "rareelite" ) or DEBUG) then -- comment for debug
+			if	( ( targetclass == "rare" ) or ( targetclass == "rareelite" ) or DEBUG) then
 				local numitems = GetNumLootItems();
 				local tarname = UnitName("target");
+				
+				if ( tarname == nil ) then tarname = "Personal loot"; end
 				
 				if ( DEBUG ) then ChatFrame1:AddMessage( "Number of loot items: " .. numitems, .9, 0, .9 ); end
 				
@@ -759,4 +880,4 @@ function RareAnnounce_OnEvent(self, event, arg1, arg2, arg3, arg4, arg5, arg6, a
 			end
 		end
 	end	
-end -- 754 lines of nightmarish code. With no library dependencies.
+end -- 883 lines of nightmarish code. With no library dependencies.
