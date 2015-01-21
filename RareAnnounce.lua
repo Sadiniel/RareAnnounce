@@ -1,5 +1,5 @@
 -- RareAnnounce
--- By Sadiniel <Dispel Stupid> of Zul'jin-Horde-US
+-- By Sadiniæ <Prophet of Cthulhu> on Garona-Alliance-US
 local DEBUG = false;
 
 local RAversion = GetAddOnMetadata("RareAnnounce", "Version");
@@ -643,16 +643,21 @@ function RareAnnounce_OnEvent(self, event, arg1, arg2, arg3, arg4, arg5, arg6, a
 		
 		if ( RareAnnounceConfig.ANNOUNCE_LOOT ) then
 		
-			if ( typeIdentifier == "item" ) then
+			if ( (arg1 ~= nil ) and ( DEBUG ) ) then ChatFrame1:AddMessage( "arg1: " .. arg1, .9, 0, .9 ); end
+			if ( (arg2 ~= nil ) and ( DEBUG ) ) then ChatFrame1:AddMessage( "arg2: " .. arg2, .9, 0, .9 ); end
+			if ( (arg3 ~= nil ) and ( DEBUG ) ) then ChatFrame1:AddMessage( "arg3: " .. arg3, .9, 0, .9 ); end
+			if ( (arg4 ~= nil ) and ( DEBUG ) ) then ChatFrame1:AddMessage( "arg4: " .. arg4, .9, 0, .9 ); end
+			
+			if ( arg1 == "item" ) then
 			
 				local inInstance, instanceType = IsInInstance();
 			
 				if ( ( inInstance ) or ( DEBUG ) ) then
 					
 					if (type(RareAnnounceConfig.ANNOUNCE_LOOT_CHANNEL) == "number") then
-						SendChatMessage( "Received Personal Loot: " .. itemLink , "channel" , nil , channel );
+						SendChatMessage( "Received Personal Loot: " .. arg2 , "channel" , nil , RareAnnounceConfig.ANNOUNCE_LOOT_CHANNEL );
 					else
-						SendChatMessage( "Received Personal Loot: " .. itemLink , channel , nil , nil );
+						SendChatMessage( "Received Personal Loot: " .. arg2 , RareAnnounceConfig.ANNOUNCE_LOOT_CHANNEL , nil , nil );
 					end
 				end
 			end
@@ -880,4 +885,4 @@ function RareAnnounce_OnEvent(self, event, arg1, arg2, arg3, arg4, arg5, arg6, a
 			end
 		end
 	end	
-end -- 883 lines of nightmarish code. With no library dependencies.
+end -- 888 lines of nightmarish code. With no library dependencies.

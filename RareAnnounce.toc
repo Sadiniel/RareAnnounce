@@ -1,7 +1,7 @@
 ## Interface: 60000
 ## Title: RareAnnounce
-## Version: 6.0.0.2
-## Author: Sadiniel <Dispel Stupid> of Zul'jin (Horde)-US
+## Version: 6.0.0.3
+## Author: Sadiniæ <Prophet of Cthulhu> on Garona-Alliance-US
 ## Notes: Tells others what loot your Rares or Bosses drop.
 ## SavedVariablesPerCharacter: RareAnnounceConfig
 
