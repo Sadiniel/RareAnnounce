@@ -1,5 +1,5 @@
 -- RareAnnounce
--- By Sadiniæ <Prophet of Cthulhu> on Garona-Alliance-US
+-- By Sadiniae <Prophet of Cthulhu> on Garona-Alliance-US
 local DEBUG = false;
 
 local RAversion = GetAddOnMetadata("RareAnnounce", "Version");
