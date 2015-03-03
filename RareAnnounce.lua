@@ -16,6 +16,7 @@ local BlockedItemIDs = {	30311, 30312, 30313, 30314, 30315, 30316, 30317, 30318,
 							10978, 11084, 11138, 11139, 11177, 11178, 14343, 14344, 20725, 22448, 22450, 22449, 34052, 34057, 34053, 52720, 105718, -- Enchanting Shards
 							52722, 52721, 74252, 102218, 94289, 74248, 74247, 80433, 115504, 115502, 113588, 111245, 113589, -- More Shards
 							15410, 44128, 52980, 98617, 72163, 110611, -- Skinning Materials
+							120945, -- Primal Spirit
 }
 
 function RareAnnounce_Config()
@@ -704,31 +705,49 @@ function RareAnnounce_OnEvent(self, event, arg1, arg2, arg3, arg4, arg5, arg6, a
 					if (LootSlotHasItem(i)) then
 						local icon, name, quantity, quality = GetLootSlotInfo(i);
 						
+						if ( name == "Apexis Crystal" ) then quality = 1 end; -- a hack because you can't parse currency links
+						
 						if ( DEBUG ) then ChatFrame1:AddMessage( "Found item: " .. name .. " Quality: " .. quality, .9, 0, .9 ); end
 					
 						-- Quality: 0 is Gray, 1 is White, 2 is Green, 3 is Blue, 4 is Purple, and 5 is Orange
 						-- We only want to announce if the Quality is above White ( > 1 ) for rares
 						
+						
 						if ((quality > 1) or DEBUG) then -- change to 0 for debug
 							local itemlink = GetLootSlotLink(i);
 							
-							droptext = tarclass .. ": " .. tarname .. " Dropped: ";
-						
-							if ( DEBUG ) then ChatFrame1:AddMessage( tarclass .. ": " .. tarname .. " Dropped: " .. itemlink, .9, 0, .9 ); end
+							if ( itemlink ~= nil ) then
 							
-							if	( RareAnnounceConfig.ANNOUNCED_ITEMS_LIST == nil ) then
-								RareAnnounceConfig.ANNOUNCED_ITEMS_LIST = { itemlink };
-								tinsert(lootTable, itemlink);
-								if (type(RareAnnounceConfig.ANNOUNCE_RARE_CHANNEL) == "number") then
+								local itemString = string.match(itemlink, "item[%-?%d:]+");
+								local _, itemID, _, _, _, _, _, _, _ = strsplit(":", itemString);
+							
+								if ( DEBUG ) then ChatFrame1:AddMessage( "Item ID: " .. itemID, .9, 0, .9 ); end
+							
+								-- We filter out items we don't want to hear about here.
+							
+								local tempID = tonumber(itemID);
+							
+								if ( tContains( BlockedItemIDs , tempID ) ) then
 								else
-									SendAddonMessage( "RareAnnounce" , itemlink , RareAnnounceConfig.ANNOUNCE_RARE_CHANNEL , nil);
-								end
-							elseif	( tContains( RareAnnounceConfig.ANNOUNCED_ITEMS_LIST, itemlink ) ) then
-							else
-								tinsert(lootTable, itemlink);
-								if (type(RareAnnounceConfig.ANNOUNCE_RARE_CHANNEL) == "number") then
-								else
-									SendAddonMessage( "RareAnnounce" , itemlink , RareAnnounceConfig.ANNOUNCE_RARE_CHANNEL , nil);
+									droptext = tarclass .. ": " .. tarname .. " Dropped: ";
+						
+									if ( DEBUG ) then ChatFrame1:AddMessage( tarclass .. ": " .. tarname .. " Dropped: " .. itemlink, .9, 0, .9 ); end
+							
+									if	( RareAnnounceConfig.ANNOUNCED_ITEMS_LIST == nil ) then
+										RareAnnounceConfig.ANNOUNCED_ITEMS_LIST = { itemlink };
+										tinsert(lootTable, itemlink);
+										if (type(RareAnnounceConfig.ANNOUNCE_RARE_CHANNEL) == "number") then
+										else
+											SendAddonMessage( "RareAnnounce" , itemlink , RareAnnounceConfig.ANNOUNCE_RARE_CHANNEL , nil);
+										end
+									elseif	( tContains( RareAnnounceConfig.ANNOUNCED_ITEMS_LIST, itemlink ) ) then
+									else
+										tinsert(lootTable, itemlink);
+										if (type(RareAnnounceConfig.ANNOUNCE_RARE_CHANNEL) == "number") then
+										else
+											SendAddonMessage( "RareAnnounce" , itemlink , RareAnnounceConfig.ANNOUNCE_RARE_CHANNEL , nil);
+										end
+									end
 								end
 							end
 						end
@@ -803,6 +822,8 @@ function RareAnnounce_OnEvent(self, event, arg1, arg2, arg3, arg4, arg5, arg6, a
 				for i=1, numitems, 1 do
 					if (LootSlotHasItem(i)) then
 						local icon, name, quantity, quality= GetLootSlotInfo(i);	
+						
+						if ( name == "Apexis Crystal" ) then quality = 1 end; -- a hack because you can't parse currency links
 						
 						if ( DEBUG ) then ChatFrame1:AddMessage( "-- Found item: " .. name .. " Quality: " .. quality, .9, 0, .9 ); end
 						
@@ -885,4 +906,4 @@ function RareAnnounce_OnEvent(self, event, arg1, arg2, arg3, arg4, arg5, arg6, a
 			end
 		end
 	end	
-end -- 888 lines of nightmarish code. With no library dependencies.
+end
