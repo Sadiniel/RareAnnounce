@@ -1,6 +1,6 @@
-## Interface: 60100
+## Interface: 60200
 ## Title: RareAnnounce
-## Version: 6.1.0.2
+## Version: 6.2.0.1
 ## Author: Sadiniae <Prophet of Cthulhu> on Garona-Alliance-US
 ## Notes: Tells others what loot your Rares or Bosses drop.
 ## SavedVariablesPerCharacter: RareAnnounceConfig
